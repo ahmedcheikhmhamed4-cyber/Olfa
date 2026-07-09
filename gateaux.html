@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gâteaux</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="cart.js"></script>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="back">← Retour</a>
+        <h1>🎂 Gâteaux</h1>
+        <p>Les 100 gâteaux les plus connus du monde</p>
+        <div class="diff-legend">
+            <span class="legend-dot hard"></span> Difficile
+            <span class="legend-dot medium" style="margin-left:1rem"></span> Moyen
+            <span class="legend-dot easy" style="margin-left:1rem"></span> Facile
+        </div>
+    </header>
+
+    <main>
+        <button class="btn btn-add" id="addBtn">+ Ajouter un gâteau</button>
+
+        <div id="addForm" class="add-form hidden">
+            <h3>Nouveau gâteau</h3>
+            <select id="newDiff" class="add-input">
+                <option value="easy">Facile</option>
+                <option value="medium">Moyen</option>
+                <option value="hard">Difficile</option>
+            </select>
+            <input type="text" id="newName" placeholder="Nom du gâteau" class="add-input">
+            <textarea id="newDesc" placeholder="Description" class="add-input" rows="2"></textarea>
+            <textarea id="newIngredients" placeholder="Ingrédients (un par ligne)" class="add-input" rows="4"></textarea>
+            <textarea id="newInstructions" placeholder="Instructions" class="add-input" rows="4"></textarea>
+            <div class="add-actions">
+                <button class="btn btn-small" id="saveBtn">Ajouter</button>
+                <button class="btn btn-small btn-cancel" id="cancelBtn">Annuler</button>
+            </div>
+        </div>
+
+        <div class="grid" id="recipesGrid"></div>
+    </main>
+
+    <script>
+        const recipes = [
+            {
+                name: 'Opéra Cake',
+                desc: 'Entremets français au café, chocolat et amande.',
+                diff: 'hard',
+                ingredients: ['Poudre amande', '4 œufs', '100g sucre', 'Ganache chocolat', 'Crème au beurre café'],
+                instructions: 'Cuire un biscuit Joconde. Imbiber de café. Alterner crème beurre café et ganache. Napper de glaçage chocolat.'
+            },
+            {
+                name: 'Dobos Torte',
+                desc: 'Gâteau hongrois à 7 couches, crème chocolat et caramel.',
+                diff: 'hard',
+                ingredients: ['5 œufs', '150g sucre', '100g farine', 'Crème chocolat', 'Caramel'],
+                instructions: 'Cuire 7 fines génoises. Garnir de crème chocolat. Couvrir de caramel durci.'
+            },
+            {
+                name: 'Medovik',
+                desc: 'Gâteau russe au miel à plusieurs couches.',
+                diff: 'hard',
+                ingredients: ['3 œufs', '150g sucre', '100g miel', '100g beurre', '500g farine', 'Crème aigre'],
+                instructions: 'Préparer la pâte au miel. Cuire 8 disques. Garnir de crème aigre sucrée. Laisser reposer 12h.'
+            },
+            {
+                name: 'Napoleon Cake',
+                desc: 'Mille-feuille russe à la crème pâtissière.',
+                diff: 'hard',
+                ingredients: ['500g farine', '400g beurre', '1L lait', '6 jaunes', '200g sucre'],
+                instructions: 'Cuire des disques de pâte. Préparer la crème. Alterner pâte et crème. Réfrigérer 12h.'
+            },
+            {
+                name: 'Kyiv Cake',
+                desc: 'Gâteau ukrainien aux noix de cajou et meringue.',
+                diff: 'hard',
+                ingredients: ['6 blancs', '250g sucre', '200g noix cajou', 'Crème au beurre'],
+                instructions: 'Monter les blancs avec sucre. Ajouter les noix. Cuire 2 disques meringue. Garnir de crème au beurre.'
+            },
+            {
+                name: 'Paris-Brest',
+                desc: 'Choux en couronne garnis de crème pralinée.',
+                diff: 'hard',
+                ingredients: ['100g beurre', '200ml eau', '125g farine', '3 œufs', 'Crème pralinée'],
+                instructions: 'Préparer une pâte à choux. Former une couronne. Cuire 30min à 200°C. Garnir de crème pralinée.'
+            },
+            {
+                name: 'Fraisier',
+                desc: 'Gâteau français aux fraises et crème mousseline.',
+                diff: 'hard',
+                ingredients: ['Génoise', '500g fraises', '500ml lait', '4 jaunes', '100g sucre', '200g beurre'],
+                instructions: 'Préparer une génoise. La couper en deux. Crème mousseline. Disposer fraises et crème entre les couches.'
+            },
+            {
+                name: 'Japanese Cheesecake',
+                desc: 'Cheesecake japonais cotonneux et léger.',
+                diff: 'hard',
+                ingredients: ['200g cream cheese', '50g beurre', '100ml lait', '6 œufs', '60g farine', '60g sucre'],
+                instructions: 'Faire fondre cream cheese et beurre. Ajouter jaunes, farine et blancs montés. Cuire au bain-marie 1h à 160°C.'
+            },
+            {
+                name: 'Panettone',
+                desc: 'Gâteau italien de Noël aux fruits confits.',
+                diff: 'hard',
+                ingredients: ['500g farine', '200g beurre', '150g sucre', '4 œufs', 'Fruits confits', 'Levure'],
+                instructions: 'Préparer une pâte briochée. Ajouter fruits confits. Laisser lever 6h. Cuire 50min à 170°C.'
+            },
+            {
+                name: 'Babka',
+                desc: 'Gâteau tressé au chocolat ou cannelle.',
+                diff: 'hard',
+                ingredients: ['500g farine', '150g beurre', '100g sucre', '3 œufs', 'Chocolat', 'Levure'],
+                instructions: 'Préparer une pâte briochée. Garnir de chocolat. Tresser. Cuire 35min à 180°C.'
+            },
+            {
+                name: 'Kouign-Amann',
+                desc: 'Gâteau breton feuilleté caramélisé au beurre salé.',
+                diff: 'hard',
+                ingredients: ['500g farine', '400g beurre salé', '300g sucre', 'Levure'],
+                instructions: 'Préparer une pâte levée. Incorporer beurre et sucre en pliage. Cuire 40min à 200°C.'
+            },
+            {
+                name: 'Sachertorte',
+                desc: 'Gâteau viennois chocolat-abricot.',
+                diff: 'hard',
+                ingredients: ['150g chocolat', '150g beurre', '100g sucre', '6 œufs', '100g farine', 'Confiture abricot'],
+                instructions: 'Faire fondre chocolat et beurre. Ajouter jaunes, farine et blancs. Cuire 40min. Garnir d\'abricot, napper chocolat.'
+            },
+            {
+                name: 'Esterházy Torte',
+                desc: 'Gâteau hongrois crème beurre aux amandes.',
+                diff: 'hard',
+                ingredients: ['6 blancs', '200g sucre', '150g amandes', 'Crème au beurre', 'Cognac'],
+                instructions: 'Cuire 5 disques meringue amandes. Garnir de crème cognac. Napper de glaçage.'
+            },
+            {
+                name: 'King Cake',
+                desc: 'Gâteau de l\'Épiphanie à la cannelle.',
+                diff: 'medium',
+                ingredients: ['500g farine', '100g beurre', '100g sucre', '2 œufs', 'Cannelle', 'Sucre coloré'],
+                instructions: 'Préparer une pâte briochée. Tresser en couronne. Cuire 25min à 180°C. Décorer de sucre coloré.'
+            },
+            {
+                name: 'Cheesecake New Yorkais',
+                desc: 'Gâteau au fromage crémeux sur croûte de biscuits.',
+                diff: 'medium',
+                ingredients: ['200g biscuits', '80g beurre', '900g cream cheese', '200g sucre', '4 œufs', '200ml crème'],
+                instructions: 'Écraser les biscuits avec le beurre. Battre le cream cheese avec le sucre. Ajouter œufs et crème. Cuire au bain-marie 1h à 160°C.'
+            },
+            {
+                name: 'Angel Food Cake',
+                desc: 'Gâteau américain ultra léger aux blancs d\'œufs.',
+                diff: 'medium',
+                ingredients: ['12 blancs', '300g sucre', '120g farine', 'Crème de tartre'],
+                instructions: 'Monter les blancs avec le sucre. Incorporer la farine. Cuire 40min à 170°C. Retourner pour refroidir.'
+            },
+            {
+                name: 'Devil\'s Food Cake',
+                desc: 'Gâteau au chocolat noir intense et riche.',
+                diff: 'medium',
+                ingredients: ['200g farine', '300g sucre', '75g cacao', '2 œufs', '120ml lait', '100g beurre'],
+                instructions: 'Mélanger secs et humides. Cuire 30min à 180°C. Garnir de ganache chocolat.'
+            },
+            {
+                name: 'Genoise Cake',
+                desc: 'Gâteau éponge italien, base de nombreux entremets.',
+                diff: 'medium',
+                ingredients: ['4 œufs', '120g sucre', '120g farine', '50g beurre'],
+                instructions: 'Battre œufs et sucre au bain-marie. Incorporer farine et beurre. Cuire 30min à 180°C.'
+            },
+            {
+                name: 'Fondant au Chocolat',
+                desc: 'Petit gâteau au cœur coulant de chocolat.',
+                diff: 'medium',
+                ingredients: ['200g chocolat', '100g beurre', '3 œufs', '80g sucre', '40g farine'],
+                instructions: 'Faire fondre chocolat et beurre. Battre œufs et sucre. Ajouter chocolat et farine. Cuire 10min à 200°C.'
+            },
+            {
+                name: 'Boston Cream Pie',
+                desc: 'Gâteau à la crème pâtissière et glaçage chocolat.',
+                diff: 'medium',
+                ingredients: ['200g farine', '150g beurre', '3 œufs', '500ml lait', '4 jaunes', '100g sucre', 'Chocolat'],
+                instructions: 'Cuire le gâteau. Préparer une crème pâtissière. Garnir et napper de chocolat.'
+            },
+            {
+                name: 'German Chocolate Cake',
+                desc: 'Gâteau chocolat garni coco-noix caramélisées.',
+                diff: 'medium',
+                ingredients: ['200g farine', '200g sucre', '100g cacao', '3 œufs', 'Noix coco', 'Noix de pécan'],
+                instructions: 'Cuire le gâteau chocolat. Glaçage au lait concentré avec coco et noix. Garnir.'
+            },
+            {
+                name: 'Fruit Cake',
+                desc: 'Gâteau riche aux fruits secs et confits.',
+                diff: 'medium',
+                ingredients: ['300g fruits secs', '200g farine', '150g beurre', '150g sucre', '3 œufs', 'Épices'],
+                instructions: 'Macérer les fruits. Battre beurre et sucre. Ajouter œufs, farine et fruits. Cuire 1h30 à 150°C.'
+            },
+            {
+                name: 'Swiss Roll',
+                desc: 'Gâteau roulé à la confiture ou crème.',
+                diff: 'medium',
+                ingredients: ['4 œufs', '120g sucre', '120g farine', 'Confiture'],
+                instructions: 'Battre œufs et sucre. Ajouter farine. Cuire 10min à 200°C. Rouler avec la garniture.'
+            },
+            {
+                name: 'Bûche de Noël',
+                desc: 'Gâteau roulé au chocolat en forme de bûche.',
+                diff: 'medium',
+                ingredients: ['4 œufs', '120g sucre', '100g farine', '30g cacao', 'Crème au beurre'],
+                instructions: 'Préparer un biscuit au chocolat. Garnir de crème. Rouler et décorer en bûche.'
+            },
+            {
+                name: 'Flourless Chocolate Cake',
+                desc: 'Gâteau chocolat sans farine, ultra dense.',
+                diff: 'medium',
+                ingredients: ['200g chocolat', '150g beurre', '4 œufs', '150g sucre'],
+                instructions: 'Faire fondre chocolat et beurre. Battre œufs et sucre. Mélanger. Cuire 30min à 180°C.'
+            },
+            {
+                name: 'Basque Burnt Cheesecake',
+                desc: 'Cheesecake basque brûlé, crémeux et caramélisé.',
+                diff: 'medium',
+                ingredients: ['900g cream cheese', '200g sucre', '5 œufs', '400ml crème', '40g farine'],
+                instructions: 'Battre tous les ingrédients. Cuire 50min à 200°C jusqu\'à surface brune.'
+            },
+            {
+                name: 'Castella',
+                desc: 'Gâteau éponge japonais moelleux.',
+                diff: 'medium',
+                ingredients: ['4 œufs', '120g sucre', '120g farine', '2 càs miel'],
+                instructions: 'Battre œufs, sucre et miel au bain-marie. Ajouter farine. Cuire 40min à 170°C.'
+            },
+            {
+                name: 'Chiffon Cake',
+                desc: 'Gâteau léger à l\'huile.',
+                diff: 'medium',
+                ingredients: ['5 œufs', '200g farine', '200g sucre', '80ml huile', '120ml eau'],
+                instructions: 'Battre blancs en neige. Mélanger jaunes, huile, eau, farine. Incorporer blancs. Cuire 45min à 170°C.'
+            },
+            {
+                name: 'Madeleine',
+                desc: 'Petit gâteau en coquille moelleux.',
+                diff: 'medium',
+                ingredients: ['150g farine', '150g beurre', '130g sucre', '3 œufs', 'Zeste citron'],
+                instructions: 'Battre œufs et sucre. Ajouter farine, beurre et zeste. Laisser reposer 1h. Cuire 10min à 200°C.'
+            },
+            {
+                name: 'Baba au Rhum',
+                desc: 'Gâteau moelleux imbibé de rhum.',
+                diff: 'medium',
+                ingredients: ['250g farine', '100g beurre', '3 œufs', '200ml rhum', '300ml eau', '150g sucre'],
+                instructions: 'Cuire le baba. Préparer un sirop au rhum. Imbiber généreusement. Servir avec crème.'
+            },
+            {
+                name: 'Gâteau Basque',
+                desc: 'Gâteau basque à la crème pâtissière.',
+                diff: 'medium',
+                ingredients: ['250g farine', '150g beurre', '150g sucre', '2 œufs', '500ml lait', 'Jaunes'],
+                instructions: 'Préparer une pâte sablée. Garnir de crème. Refermer. Dorer et cuire 40min à 180°C.'
+            },
+            {
+                name: 'Linzer Torte',
+                desc: 'Tarte autrichienne à la confiture de framboise.',
+                diff: 'medium',
+                ingredients: ['200g farine', '150g beurre', '100g sucre', '100g amandes', 'Confiture framboise'],
+                instructions: 'Préparer la pâte aux amandes. Garnir de confiture. Décorer de bandes. Cuire 40min à 180°C.'
+            },
+            {
+                name: 'Tarte Tatin',
+                desc: 'Tarte renversée aux pommes caramélisées.',
+                diff: 'medium',
+                ingredients: ['6 pommes', '100g beurre', '150g sucre', '1 pâte feuilletée'],
+                instructions: 'Caraméliser sucre et beurre. Disposer les pommes. Couvrir de pâte. Cuire 30min à 200°C. Retourner.'
+            },
+            {
+                name: 'Cassata Siciliana',
+                desc: 'Gâteau sicilien ricotta, fruits confits et pâte d\'amande.',
+                diff: 'medium',
+                ingredients: ['Génoise', '500g ricotta', '150g sucre', 'Fruits confits', 'Pâte d\'amande'],
+                instructions: 'Mélanger ricotta, sucre et fruits. Garnir la génoise. Couvrir de pâte d\'amande.'
+            },
+            {
+                name: 'Kremówka',
+                desc: 'Gâteau polonais à la crème pâtissière.',
+                diff: 'medium',
+                ingredients: ['Pâte feuilletée', '1L lait', '6 jaunes', '200g sucre', '100g farine', '200g beurre'],
+                instructions: 'Cuire la pâte en 2 disques. Crème pâtissière au beurre. Monter et réfrigérer.'
+            },
+            {
+                name: 'Pastiera Napoletana',
+                desc: 'Tarte napolitaine ricotta et blé.',
+                diff: 'medium',
+                ingredients: ['Pâte brisée', '300g ricotta', '200g blé cuit', '150g sucre', '3 œufs'],
+                instructions: 'Préparer la pâte. Mélanger ricotta, blé, sucre, œufs. Garnir. Cuire 40min à 180°C.'
+            },
+            {
+                name: 'Sernik',
+                desc: 'Cheesecake polonais au fromage blanc.',
+                diff: 'medium',
+                ingredients: ['1kg fromage blanc', '200g sucre', '4 œufs', '100g beurre', 'Raisins'],
+                instructions: 'Mixer le fromage. Ajouter sucre, œufs, beurre. Verser sur pâte brisée. Cuire 1h à 170°C.'
+            },
+            {
+                name: 'Prinsesstårta',
+                desc: 'Gâteau princesse suédois à la pâte d\'amande.',
+                diff: 'medium',
+                ingredients: ['Génoise', 'Crème pâtissière', 'Confiture', 'Crème fouettée', 'Pâte d\'amande verte'],
+                instructions: 'Garnir la génoise de crème et confiture. Couvrir de pâte d\'amande verte.'
+            },
+            {
+                name: 'Torta della Nonna',
+                desc: 'Tarte italienne crème et pignons.',
+                diff: 'medium',
+                ingredients: ['Pâte sablée', '500ml lait', '4 jaunes', '100g sucre', '50g farine', 'Pignons'],
+                instructions: 'Préparer la pâte. Crème pâtissière. Garnir et couvrir. Parsemer de pignons. Cuire 35min à 180°C.'
+            },
+            {
+                name: 'Vínarterta',
+                desc: 'Gâteau islandais confiture de pruneaux.',
+                diff: 'medium',
+                ingredients: ['500g farine', '200g beurre', '200g sucre', 'Confiture pruneaux', 'Cardamome'],
+                instructions: 'Pâte sablée. Cuire 6 disques. Garnir de confiture pruneaux. Empiler.'
+            },
+            {
+                name: 'Dundee Cake',
+                desc: 'Gâteau écossais fruits confits et amandes.',
+                diff: 'medium',
+                ingredients: ['200g farine', '150g beurre', '150g sucre', '3 œufs', 'Fruits confits', 'Amandes'],
+                instructions: 'Battre beurre et sucre. Ajouter œufs, farine et fruits. Décorer d\'amandes. Cuire 1h30 à 150°C.'
+            },
+            {
+                name: 'Chocolate Cake',
+                desc: 'Le classique indémodable au chocolat, moelleux et gourmand.',
+                diff: 'easy',
+                ingredients: ['200g farine', '200g sucre', '100g cacao', '3 œufs', '150g beurre', 'Levure', '200ml lait'],
+                instructions: 'Mélanger farine, cacao et levure. Battre beurre et sucre, ajouter les œufs. Ajouter le mélange sec et le lait. Cuire 35min à 180°C.'
+            },
+            {
+                name: 'Carrot Cake',
+                desc: 'Gâteau moelleux aux carottes, noix et cream cheese frosting.',
+                diff: 'easy',
+                ingredients: ['300g carottes', '200g farine', '200g sucre', '3 œufs', '100ml huile', '100g noix', 'Cannelle', 'Cream cheese'],
+                instructions: 'Mélanger farine, sucre, cannelle. Ajouter œufs, huile, carottes et noix. Cuire 40min à 180°C. Garnir de cream cheese.'
+            },
+            {
+                name: 'Red Velvet Cake',
+                desc: 'Gâteau rouge velouté au cacao, glaçage cream cheese.',
+                diff: 'easy',
+                ingredients: ['250g farine', '200g sucre', '2 càs cacao', 'Colorant rouge', '2 œufs', '120ml lait', 'Cream cheese'],
+                instructions: 'Mélanger secs et humides avec le colorant. Cuire 30min à 180°C. Garnir de cream cheese frosting.'
+            },
+            {
+                name: 'Lemon Cake',
+                desc: 'Gâteau au citron moelleux et acidulé.',
+                diff: 'easy',
+                ingredients: ['200g farine', '200g sucre', '3 œufs', '150g beurre', '2 citrons (jus+zeste)', 'Levure'],
+                instructions: 'Battre beurre et sucre. Ajouter œufs, farine, citron et levure. Cuire 35min à 180°C. Napper de glacage citron.'
+            },
+            {
+                name: 'Banana Cake',
+                desc: 'Gâteau à la banane ultra moelleux.',
+                diff: 'easy',
+                ingredients: ['3 bananes mûres', '200g farine', '150g sucre', '2 œufs', '80ml huile', 'Levure'],
+                instructions: 'Écraser les bananes. Mélanger avec œufs, huile et sucre. Ajouter farine et levure. Cuire 35min à 180°C.'
+            },
+            {
+                name: 'Coffee Cake',
+                desc: 'Gâteau au café avec crumble aux noix.',
+                diff: 'easy',
+                ingredients: ['200g farine', '200g sucre', '2 càs café', '100g beurre', '2 œufs', '100ml lait', 'Noix'],
+                instructions: 'Mélanger farine, sucre, café. Ajouter beurre, œufs et lait. Parsemer de crumble noix. Cuire 35min à 180°C.'
+            },
+            {
+                name: 'Pound Cake',
+                desc: 'Gâteau anglais classique 1 livre de chaque ingrédient.',
+                diff: 'easy',
+                ingredients: ['250g farine', '250g beurre', '250g sucre', '4 œufs', 'Vanille'],
+                instructions: 'Battre beurre et sucre. Ajouter œufs un à un. Ajouter farine et vanille. Cuire 50min à 170°C.'
+            },
+            {
+                name: 'Victoria Sponge',
+                desc: 'Gâteau britannique à la confiture et crème.',
+                diff: 'easy',
+                ingredients: ['200g farine', '200g beurre', '200g sucre', '4 œufs', 'Confiture fraises', 'Crème'],
+                instructions: 'Battre beurre et sucre. Ajouter œufs et farine. Cuire 25min à 180°C. Garnir de confiture et crème.'
+            },
+            {
+                name: 'Madeira Cake',
+                desc: 'Gâteau anglais dense et doré.',
+                diff: 'easy',
+                ingredients: ['200g farine', '200g beurre', '180g sucre', '3 œufs', 'Zeste citron'],
+                instructions: 'Battre beurre et sucre. Ajouter œufs, farine et zeste. Cuire 45min à 170°C.'
+            },
+            {
+                name: 'Marble Cake',
+                desc: 'Gâteau marbré à la vanille et au chocolat.',
+                diff: 'easy',
+                ingredients: ['200g farine', '200g beurre', '200g sucre', '4 œufs', '2 càs cacao'],
+                instructions: 'Préparer une pâte vanille. Diviser et ajouter cacao. Alterner dans le moule. Cuire 40min à 180°C.'
+            },
+            {
+                name: 'Pineapple Upside-Down Cake',
+                desc: 'Gâteau renversé à l\'ananas caramélisé.',
+                diff: 'easy',
+                ingredients: ['200g farine', '150g beurre', '150g sucre', '2 œufs', 'Ananas', 'Sucre brun'],
+                instructions: 'Caraméliser sucre et ananas dans le moule. Verser la pâte. Cuire 35min à 180°C. Retourner.'
+            },
+            {
+                name: 'Coconut Cake',
+                desc: 'Gâteau moelleux à la noix de coco.',
+                diff: 'easy',
+                ingredients: ['200g farine', '200g sucre', '150g noix coco', '3 œufs', '100g beurre', '200ml lait'],
+                instructions: 'Mélanger tous les ingrédients. Cuire 35min à 180°C. Garnir de noix coco râpée.'
+            },
+            {
+                name: 'Hummingbird Cake',
+                desc: 'Gâteau jamaïcain à l\'ananas, banane et noix.',
+                diff: 'easy',
+                ingredients: ['2 bananes', '200g ananas', '200g farine', '200g sucre', '100g noix', '2 œufs'],
+                instructions: 'Mélanger farine et sucre. Ajouter banane, ananas, noix et œufs. Cuire 40min à 180°C.'
+            },
+            {
+                name: 'Rum Cake',
+                desc: 'Gâteau imbibé de rhum, moelleux et parfumé.',
+                diff: 'easy',
+                ingredients: ['200g farine', '200g beurre', '200g sucre', '3 œufs', '100ml rhum'],
+                instructions: 'Cuire le gâteau. Préparer un sirop au rhum. Piquer et imbiber le gâteau chaud.'
+            },
+            {
+                name: 'Apple Cake',
+                desc: 'Gâteau aux pommes moelleux.',
+                diff: 'easy',
+                ingredients: ['3 pommes', '200g farine', '150g sucre', '100g beurre', '2 œufs', 'Cannelle'],
+                instructions: 'Mélanger farine, sucre, beurre, œufs. Ajouter les pommes. Cuire 40min à 180°C.'
+            },
+            {
+                name: 'Blueberry Cake',
+                desc: 'Gâteau moelleux aux myrtilles.',
+                diff: 'easy',
+                ingredients: ['200g farine', '150g sucre', '100g beurre', '2 œufs', '200g myrtilles'],
+                instructions: 'Mélanger farine, sucre, beurre, œufs. Ajouter les myrtilles. Cuire 35min à 180°C.'
+            },
+            {
+                name: 'Ricotta Cake',
+                desc: 'Gâteau italien à la ricotta, léger.',
+                diff: 'easy',
+                ingredients: ['500g ricotta', '150g sucre', '3 œufs', '50g farine', 'Zeste citron'],
+                instructions: 'Mélanger ricotta, sucre, œufs. Ajouter farine et zeste. Cuire 45min à 170°C.'
+            },
+            {
+                name: 'Olive Oil Cake',
+                desc: 'Gâteau à l\'huile d\'olive, moelleux et fruité.',
+                diff: 'easy',
+                ingredients: ['200g farine', '150g sucre', '120ml huile olive', '3 œufs', 'Zeste orange'],
+                instructions: 'Mélanger huile, sucre, œufs. Ajouter farine et zeste. Cuire 35min à 180°C.'
+            },
+            {
+                name: 'Lamington',
+                desc: 'Gâteau australien au chocolat et noix coco.',
+                diff: 'easy',
+                ingredients: ['Génoise', '200g chocolat', '100ml lait', 'Noix coco râpée'],
+                instructions: 'Couper la génoise en carrés. Tremper dans le chocolat. Rouler dans la noix coco.'
+            },
+            {
+                name: 'Banana Bread',
+                desc: 'Pain-gâteau à la banane, ultra moelleux.',
+                diff: 'easy',
+                ingredients: ['3 bananes', '200g farine', '100g sucre', '80g beurre', '1 œuf'],
+                instructions: 'Écraser les bananes. Mélanger avec beurre, sucre, œuf. Ajouter farine. Cuire 50min à 180°C.'
+            },
+            {
+                name: 'Pumpkin Cake',
+                desc: 'Gâteau au potiron épicé d\'automne.',
+                diff: 'easy',
+                ingredients: ['300g purée potiron', '200g farine', '150g sucre', '2 œufs', 'Cannelle'],
+                instructions: 'Mélanger purée, œufs, sucre et huile. Ajouter farine et épices. Cuire 40min à 180°C.'
+            },
+            {
+                name: 'Spice Cake',
+                desc: 'Gâteau aux épices douces.',
+                diff: 'easy',
+                ingredients: ['200g farine', '150g sucre', '100g beurre', '2 œufs', 'Cannelle, muscade'],
+                instructions: 'Battre beurre et sucre. Ajouter œufs, farine et épices. Cuire 35min à 180°C.'
+            },
+            {
+                name: 'Gingerbread Cake',
+                desc: 'Gâteau pain d\'épices au gingembre.',
+                diff: 'easy',
+                ingredients: ['250g farine', '125g beurre', '100g sucre', '120ml mélasse', 'Gingembre'],
+                instructions: 'Mélanger tous les ingrédients. Cuire 40min à 170°C. Servir chaud avec crème.'
+            },
+            {
+                name: 'Pandan Cake',
+                desc: 'Gâteau vert parfumé au pandan.',
+                diff: 'easy',
+                ingredients: ['5 œufs', '150g farine', '150g sucre', '100ml lait coco', 'Extrait pandan'],
+                instructions: 'Battre œufs et sucre. Ajouter farine, lait coco et pandan. Cuire 35min à 180°C.'
+            },
+            {
+                name: 'Ube Cake',
+                desc: 'Gâteau philippin à l\'igname violette.',
+                diff: 'easy',
+                ingredients: ['200g farine', '200g sucre', '150g purée ube', '3 œufs', '100ml lait coco'],
+                instructions: 'Mélanger farine, sucre, beurre. Ajouter purée ube, œufs, lait coco. Cuire 35min à 180°C.'
+            },
+            {
+                name: 'Torta Caprese',
+                desc: 'Gâteau italien chocolat-amandes sans farine.',
+                diff: 'easy',
+                ingredients: ['200g chocolat', '200g poudre amande', '150g beurre', '4 œufs', '150g sucre'],
+                instructions: 'Faire fondre chocolat et beurre. Mélanger jaunes et sucre. Ajouter amande et chocolat. Incorporer blancs. Cuire 35min à 180°C.'
+            },
+            {
+                name: 'Honey Cake',
+                desc: 'Gâteau au miel moelleux et parfumé.',
+                diff: 'easy',
+                ingredients: ['200g farine', '150g miel', '100g beurre', '2 œufs', '100ml lait'],
+                instructions: 'Faire chauffer miel et beurre. Ajouter œufs, lait, farine. Cuire 35min à 180°C.'
+            },
+            {
+                name: 'Vanilla Cake',
+                desc: 'Gâteau à la vanille classique.',
+                diff: 'easy',
+                ingredients: ['200g farine', '200g sucre', '150g beurre', '3 œufs', '100ml lait', 'Vanille'],
+                instructions: 'Battre beurre et sucre. Ajouter œufs, farine, lait et vanille. Cuire 35min à 180°C.'
+            },
+            {
+                name: 'Strawberry Cake',
+                desc: 'Gâteau aux fraises, léger et fruité.',
+                diff: 'easy',
+                ingredients: ['200g fraises', '200g farine', '150g sucre', '100g beurre', '2 œufs'],
+                instructions: 'Mélanger farine, beurre, sucre et œufs. Ajouter les fraises. Cuire 35min à 180°C.'
+            },
+            {
+                name: 'Pistachio Cake',
+                desc: 'Gâteau à la pistache vert et parfumé.',
+                diff: 'easy',
+                ingredients: ['200g farine', '150g sucre', '100g pâte pistache', '100g beurre', '3 œufs'],
+                instructions: 'Battre beurre et sucre. Ajouter pâte pistache, œufs et farine. Cuire 35min à 180°C.'
+            },
+            {
+                name: 'Walnut Cake',
+                desc: 'Gâteau aux noix moelleux.',
+                diff: 'easy',
+                ingredients: ['200g farine', '150g sucre', '150g noix', '100g beurre', '3 œufs', 'Miel'],
+                instructions: 'Battre beurre et sucre. Ajouter œufs, farine et noix. Cuire 35min à 180°C. Napper de miel.'
+            },
+            {
+                name: 'Almond Cake',
+                desc: 'Gâteau aux amandes sans gluten.',
+                diff: 'easy',
+                ingredients: ['250g poudre amande', '150g sucre', '100g beurre', '3 œufs'],
+                instructions: 'Mélanger amande, sucre, beurre et œufs. Cuire 35min à 180°C.'
+            },
+            {
+                name: 'Hazelnut Cake',
+                desc: 'Gâteau aux noisettes riche et gourmand.',
+                diff: 'easy',
+                ingredients: ['200g poudre noisette', '150g sucre', '100g beurre', '3 œufs', 'Chocolat'],
+                instructions: 'Mélanger noisette, sucre, beurre et œufs. Ajouter chocolat. Cuire 35min à 180°C.'
+            },
+            {
+                name: 'Chestnut Cake',
+                desc: 'Gâteau à la crème de marrons.',
+                diff: 'easy',
+                ingredients: ['250g crème marrons', '100g farine', '100g beurre', '3 œufs'],
+                instructions: 'Mélanger crème marrons, beurre et œufs. Ajouter farine. Cuire 35min à 180°C.'
+            },
+            {
+                name: 'Mango Cake',
+                desc: 'Gâteau à la mangue tropical et moelleux.',
+                diff: 'easy',
+                ingredients: ['200g purée mangue', '200g farine', '150g sucre', '100g beurre', '2 œufs'],
+                instructions: 'Mélanger purée, beurre, sucre et œufs. Ajouter farine. Cuire 35min à 180°C.'
+            },
+            {
+                name: 'Tres Leches Cake',
+                desc: 'Gâteau imbibé de trois laits.',
+                diff: 'easy',
+                ingredients: ['200g farine', '4 œufs', '200g sucre', 'Lait concentré', 'Lait évaporé', 'Crème'],
+                instructions: 'Cuire le gâteau. Piquer. Verser le mélange des 3 laits. Réfrigérer 4h.'
+            },
+            {
+                name: 'Tarta de Santiago',
+                desc: 'Tarte espagnole aux amandes.',
+                diff: 'easy',
+                ingredients: ['250g poudre amande', '200g sucre', '4 œufs', 'Zeste citron'],
+                instructions: 'Mélanger amande, sucre, œufs et zeste. Cuire 35min à 180°C. Saupoudrer de sucre glace.'
+            },
+            {
+                name: 'Bolo de Bolacha',
+                desc: 'Gâteau portugais biscuits et café.',
+                diff: 'easy',
+                ingredients: ['200g biscuits', '200g beurre', '200g sucre', 'Café', '3 œufs'],
+                instructions: 'Battre beurre et sucre. Ajouter les œufs. Tremper biscuits dans café. Alterner crème et biscuits.'
+            },
+            {
+                name: 'Gâteau Nantais',
+                desc: 'Gâteau nantais aux amandes et rhum.',
+                diff: 'easy',
+                ingredients: ['150g amande', '150g beurre', '150g sucre', '3 œufs', '40g farine', 'Rhum'],
+                instructions: 'Mélanger tous les ingrédients avec rhum. Cuire 40min à 180°C. Napper glaçage rhum.'
+            },
+            {
+                name: 'Mazurek',
+                desc: 'Gâteau polonais plat fruits secs chocolat.',
+                diff: 'easy',
+                ingredients: ['200g farine', '100g beurre', '1 jaune', 'Fruits secs', 'Chocolat'],
+                instructions: 'Pâte sablée. Cuire 15min. Garnir de fruits secs et chocolat fondu.'
+            },
+            {
+                name: 'Coffee Walnut Cake',
+                desc: 'Gâteau anglais café et noix.',
+                diff: 'easy',
+                ingredients: ['200g farine', '200g beurre', '200g sucre', '3 œufs', 'Café', '100g noix'],
+                instructions: 'Battre beurre et sucre. Ajouter œufs, farine, café et noix. Cuire 35min à 180°C.'
+            },
+            {
+                name: 'Raspberry Cake',
+                desc: 'Gâteau aux framboises frais et fruité.',
+                diff: 'easy',
+                ingredients: ['200g framboises', '200g farine', '150g sucre', '100g beurre', '2 œufs'],
+                instructions: 'Mélanger farine, beurre, sucre et œufs. Ajouter les framboises. Cuire 35min à 180°C.'
+            },
+            {
+                name: 'Mocha Cake',
+                desc: 'Gâteau café-chocolat intense.',
+                diff: 'easy',
+                ingredients: ['200g farine', '200g sucre', '100g cacao', '2 càs café', '3 œufs', '150g beurre'],
+                instructions: 'Mélanger secs et humides. Cuire 35min à 180°C. Garnir de ganache café.'
+            },
+            {
+                name: 'Funfetti Cake',
+                desc: 'Gâteau arc-en-ciel aux pépites colorées.',
+                diff: 'easy',
+                ingredients: ['200g farine', '200g sucre', '150g beurre', '3 œufs', 'Pépites colorées'],
+                instructions: 'Battre beurre et sucre. Ajouter œufs et farine. Incorporer les pépites. Cuire 35min à 180°C.'
+            },
+            {
+                name: 'Zucchini Cake',
+                desc: 'Gâteau aux courgettes moelleux.',
+                diff: 'easy',
+                ingredients: ['200g courgettes', '200g farine', '150g sucre', '100g noix', '2 œufs', 'Huile', 'Cannelle'],
+                instructions: 'Mélanger courgettes, œufs, sucre, huile. Ajouter farine, noix, cannelle. Cuire 40min à 180°C.'
+            },
+            {
+                name: 'Blondie Cake',
+                desc: 'Brownie vanille au chocolat blanc.',
+                diff: 'easy',
+                ingredients: ['200g farine', '150g beurre', '200g sucre brun', '2 œufs', '100g chocolat blanc'],
+                instructions: 'Battre beurre et sucre. Ajouter œufs, farine et pépites. Cuire 25min à 180°C.'
+            },
+            {
+                name: 'Polenta Cake',
+                desc: 'Gâteau à la polenta et amandes.',
+                diff: 'easy',
+                ingredients: ['150g polenta', '150g amande', '150g sucre', '120g beurre', '3 œufs', 'Zeste orange'],
+                instructions: 'Mélanger secs et humides. Cuire 40min à 180°C. Servir avec compote.'
+            },
+            {
+                name: 'Poppy Seed Cake',
+                desc: 'Gâteau aux graines de pavot.',
+                diff: 'easy',
+                ingredients: ['200g farine', '150g sucre', '100g beurre', '3 œufs', '80g pavot', 'Zeste citron'],
+                instructions: 'Battre beurre et sucre. Ajouter œufs, farine, pavot et zeste. Cuire 35min à 180°C.'
+            },
+            {
+                name: 'Rhubarb Cake',
+                desc: 'Gâteau à la rhubarbe acidulée.',
+                diff: 'easy',
+                ingredients: ['300g rhubarbe', '200g farine', '150g sucre', '100g beurre', '2 œufs'],
+                instructions: 'Mélanger farine, beurre, sucre, œufs. Ajouter la rhubarbe. Cuire 40min à 180°C.'
+            },
+            {
+                name: 'Queen Elizabeth Cake',
+                desc: 'Gâteau canadien aux dattes et noix.',
+                diff: 'easy',
+                ingredients: ['200g dattes', '200g farine', '150g sucre', '100g noix', '2 œufs'],
+                instructions: 'Hacher les dattes. Mélanger avec farine, sucre, noix, œufs. Cuire 40min à 180°C.'
+            },
+            {
+                name: 'Quesada',
+                desc: 'Gâteau espagnol au yaourt et fromage.',
+                diff: 'easy',
+                ingredients: ['500g fromage frais', '200g yaourt', '200g sucre', '4 œufs', '100g farine'],
+                instructions: 'Mélanger tous les ingrédients. Cuire 45min à 170°C. Réfrigérer.'
+            },
+            {
+                name: 'Brownie Cake',
+                desc: 'Gâteau brownie dense, croustillant et fondant.',
+                diff: 'easy',
+                ingredients: ['200g chocolat', '150g beurre', '200g sucre', '3 œufs', '100g farine', 'Noix'],
+                instructions: 'Faire fondre chocolat et beurre. Ajouter sucre, œufs, farine et noix. Cuire 25min à 180°C.'
+            },
+            {
+                name: 'Lemon Drizzle Cake',
+                desc: 'Gâteau citron imbibé de sirop acidulé.',
+                diff: 'easy',
+                ingredients: ['200g farine', '200g beurre', '200g sucre', '3 œufs', '2 citrons'],
+                instructions: 'Cuire le gâteau. Sirop citronné. Piquer et verser le sirop chaud dessus.'
+            },
+            {
+                name: 'Financier',
+                desc: 'Petit gâteau amandes et beurre noisette.',
+                diff: 'easy',
+                ingredients: ['100g poudre amande', '100g sucre', '60g farine', '4 blancs', '100g beurre'],
+                instructions: 'Mélanger amande, sucre, farine. Ajouter blancs puis beurre noisette. Cuire 12min à 200°C.'
+            },
+            {
+                name: 'Cheesecake au Caramel',
+                desc: 'Cheesecake crémeux nappé de caramel au beurre salé.',
+                diff: 'easy',
+                ingredients: ['200g biscuits speculoos', '80g beurre', '600g cream cheese', '150g sucre', '3 œufs', '200ml caramel beurre salé'],
+                instructions: 'Écraser les biscuits avec le beurre. Battre le cream cheese avec le sucre et les œufs. Verser sur la croûte. Cuire 45min à 160°C. Laisser refroidir et napper de caramel.'
+            },
+            {
+                name: 'Cheesecake au Chocolat',
+                desc: 'Cheesecake riche au chocolat noir et ganache.',
+                diff: 'easy',
+                ingredients: ['200g biscuits Oreo', '80g beurre', '600g cream cheese', '150g sucre', '3 œufs', '200g chocolat noir', '100ml crème'],
+                instructions: 'Écraser les biscuits avec le beurre. Battre le cream cheese avec le sucre, les œufs et le chocolat fondu. Verser sur la croûte. Cuire 45min à 160°C. Napper de ganache chocolat-crème.'
+            },
+            {
+                name: 'Cheesecake au Citron',
+                desc: 'Cheesecake frais et acidulé au citron.',
+                diff: 'easy',
+                ingredients: ['200g biscuits', '80g beurre', '600g cream cheese', '150g sucre', '3 œufs', '2 citrons (jus+zeste)'],
+                instructions: 'Écraser les biscuits avec le beurre. Battre le cream cheese avec le sucre, les œufs et le citron. Verser sur la croûte. Cuire 45min à 160°C. Réfrigérer 4h avant de servir.'
+            },
+            {
+                name: 'Cheesecake aux Fraises',
+                desc: 'Cheesecake onctueux avec coulis de fraises fraîches.',
+                diff: 'easy',
+                ingredients: ['200g biscuits', '80g beurre', '600g cream cheese', '150g sucre', '3 œufs', '300g fraises', '2 càs sucre'],
+                instructions: 'Écraser les biscuits avec le beurre. Battre le cream cheese avec le sucre et les œufs. Cuire 45min à 160°C. Préparer un coulis de fraises. Napper le cheesecake refroidi de coulis.'
+            },
+            {
+                name: 'Cheesecake à la Pistache',
+                desc: 'Cheesecake vert à la pâte de pistache.',
+                diff: 'medium',
+                ingredients: ['200g biscuits', '80g beurre', '600g cream cheese', '150g sucre', '3 œufs', '100g pâte de pistache', 'Pistaches concassées'],
+                instructions: 'Écraser les biscuits avec le beurre. Battre le cream cheese avec le sucre, les œufs et la pâte de pistache. Verser sur la croûte. Cuire 45min à 160°C. Décorer de pistaches concassées.'
+            },
+            {
+                name: 'Cheesecake à la Mangue',
+                desc: 'Cheesecake tropical à la purée de mangue.',
+                diff: 'easy',
+                ingredients: ['200g biscuits', '80g beurre', '600g cream cheese', '150g sucre', '3 œufs', '200g purée de mangue'],
+                instructions: 'Écraser les biscuits avec le beurre. Battre le cream cheese avec le sucre, les œufs et la purée de mangue. Cuire 45min à 160°C. Réfrigérer et décorer de dés de mangue.'
+            },
+            {
+                name: 'Cheesecake Oreo',
+                desc: 'Cheesecake aux biscuits Oreo, croquant et crémeux.',
+                diff: 'easy',
+                ingredients: ['200g biscuits Oreo', '80g beurre', '600g cream cheese', '150g sucre', '3 œufs', '100g biscuits Oreo concassés'],
+                instructions: 'Écraser les Oreo avec le beurre pour la croûte. Battre le cream cheese avec le sucre et les œufs. Ajouter les Oreo concassés. Cuire 45min à 160°C. Décorer de morceaux d\'Oreo.'
+            },
+            {
+                name: 'Cheesecake Speculoos',
+                desc: 'Cheesecake à la pâte de speculoos, irrésistible.',
+                diff: 'easy',
+                ingredients: ['200g biscuits speculoos', '80g beurre', '600g cream cheese', '100g sucre', '3 œufs', '150g pâte de speculoos'],
+                instructions: 'Écraser les speculoos avec le beurre. Battre le cream cheese avec le sucre, les œufs et la pâte de speculoos. Cuire 45min à 160°C. Napper de pâte de speculoos fondue.'
+            },
+            {
+                name: 'Cheesecake au Nutella',
+                desc: 'Cheesecake noisette-chocolat au Nutella.',
+                diff: 'easy',
+                ingredients: ['200g biscuits', '80g beurre', '600g cream cheese', '100g sucre', '3 œufs', '200g Nutella'],
+                instructions: 'Écraser les biscuits avec le beurre. Battre le cream cheese avec le sucre, les œufs et le Nutella. Cuire 45min à 160°C. Laisser refroidir et garnir de Nutella.'
+            },
+            {
+                name: 'Cheesecake à la Framboise',
+                desc: 'Cheesecake rose à la framboise, léger et fruité.',
+                diff: 'easy',
+                ingredients: ['200g biscuits', '80g beurre', '600g cream cheese', '150g sucre', '3 œufs', '200g framboises'],
+                instructions: 'Écraser les biscuits avec le beurre. Battre le cream cheese avec le sucre et les œufs. Incorporer les framboises écrasées. Cuire 45min à 160°C. Décorer de framboises fraîches.'
+            },
+            {
+                name: 'Cheesecake au Café',
+                desc: 'Cheesecake au café onctueux pour les amateurs de café.',
+                diff: 'medium',
+                ingredients: ['200g biscuits', '80g beurre', '600g cream cheese', '150g sucre', '3 œufs', '2 càs café soluble', '100ml crème'],
+                instructions: 'Écraser les biscuits avec le beurre. Battre le cream cheese avec le sucre, les œufs et le café dissous dans la crème. Cuire 45min à 160°C. Réfrigérer et saupoudrer de cacao.'
+            },
+            {
+                name: 'Mini Cheesecakes individuels',
+                desc: 'Petits cheesecakes individuels, pratiques et gourmands.',
+                diff: 'easy',
+                ingredients: ['200g biscuits', '80g beurre', '600g cream cheese', '150g sucre', '3 œufs', 'Confiture au choix'],
+                instructions: 'Écraser les biscuits avec le beurre. Répartir dans des moules individuels. Battre le cream cheese avec le sucre et les œufs. Verser sur les croûtes. Cuire 20min à 160°C. Garnir de confiture.'
+            }
+        ];
+
+        const grid = document.getElementById('recipesGrid');
+        const addBtn = document.getElementById('addBtn');
+        const addForm = document.getElementById('addForm');
+        const saveBtn = document.getElementById('saveBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+
+        const diffOrder = { hard: 0, medium: 1, easy: 2 };
+
+        function renderRecipes() {
+            grid.innerHTML = '';
+            const sorted = [...recipes].sort((a, b) => diffOrder[a.diff] - diffOrder[b.diff]);
+
+            sorted.forEach(r => {
+                const item = document.createElement('article');
+                item.className = 'recipe-item diff-' + r.diff;
+
+                const badges = { hard: '🔴 Difficile', medium: '🟠 Moyen', easy: '🟢 Facile' };
+
+                const header = document.createElement('div');
+                header.className = 'recipe-header';
+                header.innerHTML = `<h3>${r.name} <span class="diff-badge ${r.diff}">${badges[r.diff]}</span></h3><p>${r.desc}</p>`;
+
+                const content = document.createElement('div');
+                content.className = 'recipe-content hidden';
+                content.innerHTML = `
+                    <div class="recipe-section">
+                        <h4>Ingrédients</h4>
+                        <ul>${r.ingredients.map(i => `<li>${i}</li>`).join('')}</ul>
+                    </div>
+                    <div class="recipe-section">
+                        <h4>Préparation</h4>
+                        <p>${r.instructions}</p>
+                    </div>
+                    <button class="btn-cart">Ajouter au panier</button>
+                `;
+
+                header.addEventListener('click', () => {
+                    content.classList.toggle('hidden');
+                });
+
+                const cartBtn = content.querySelector('.btn-cart');
+                cartBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    addToCart(r.name, r.ingredients);
+                    cartBtn.textContent = '✓ Ajouté';
+                    cartBtn.style.background = '#27ae60';
+                    setTimeout(() => {
+                        cartBtn.textContent = 'Ajouter au panier';
+                        cartBtn.style.background = '';
+                    }, 2000);
+                });
+
+                item.appendChild(header);
+                item.appendChild(content);
+                grid.appendChild(item);
+            });
+        }
+
+        addBtn.addEventListener('click', () => addForm.classList.toggle('hidden'));
+
+        cancelBtn.addEventListener('click', () => {
+            addForm.classList.add('hidden');
+            document.getElementById('newName').value = '';
+            document.getElementById('newDesc').value = '';
+            document.getElementById('newIngredients').value = '';
+            document.getElementById('newInstructions').value = '';
+        });
+
+        saveBtn.addEventListener('click', () => {
+            const diff = document.getElementById('newDiff').value;
+            const name = document.getElementById('newName').value.trim();
+            const desc = document.getElementById('newDesc').value.trim();
+            const ingredients = document.getElementById('newIngredients').value.trim();
+            const instructions = document.getElementById('newInstructions').value.trim();
+
+            if (!name || !ingredients || !instructions) {
+                alert('Remplis au moins le nom, les ingrédients et les instructions.');
+                return;
+            }
+
+            recipes.push({
+                name,
+                desc: desc || 'Pas de description',
+                diff,
+                ingredients: ingredients.split('\n').filter(i => i.trim()),
+                instructions
+            });
+
+            renderRecipes();
+
+            document.getElementById('newName').value = '';
+            document.getElementById('newDesc').value = '';
+            document.getElementById('newIngredients').value = '';
+            document.getElementById('newInstructions').value = '';
+            addForm.classList.add('hidden');
+        });
+
+        renderRecipes();
+    </script>
+</body>
+</html>

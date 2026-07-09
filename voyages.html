@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vols</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <a href="index.html" class="back">← Retour</a>
+        <h1>✈️ Vols</h1>
+        <p>Cherche et réserve ton vol</p>
+    </header>
+
+    <main>
+        <form id="travelForm" class="travel-form">
+            <div class="form-group">
+                <label for="from">Ville de départ</label>
+                <input type="text" id="from" placeholder="Ex: Tunis" required>
+            </div>
+
+            <div class="form-group">
+                <label for="to">Ville de destination</label>
+                <input type="text" id="to" placeholder="Ex: Paris" required>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="departDate">Date aller</label>
+                    <input type="date" id="departDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="returnDate">Date retour</label>
+                    <input type="date" id="returnDate">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="passengers">Passagers</label>
+                    <input type="number" id="passengers" min="1" max="10" value="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="currency">Devise</label>
+                    <select id="currency" class="form-select">
+                        <option value="TND">TND (DT)</option>
+                        <option value="EUR">EUR (€)</option>
+                        <option value="USD">USD ($)</option>
+                        <option value="AED">AED (د.إ)</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="btn">Rechercher des vols</button>
+        </form>
+
+        <div id="results" class="results-container hidden"></div>
+    </main>
+
+    <script>
+        const airlines = [
+            { name: 'Tunisair', site: 'https://www.tunisair.com', color: '#003366' },
+            { name: 'Nouvelair', site: 'https://www.nouvelair.com', color: '#009688' },
+            { name: 'Air France', site: 'https://www.airfrance.fr', color: '#002157' },
+            { name: 'Transavia', site: 'https://www.transavia.com', color: '#00aec7' },
+            { name: 'Turkish Airlines', site: 'https://www.turkishairlines.com', color: '#e30a17' },
+            { name: 'Qatar Airways', site: 'https://www.qatarairways.com', color: '#8a1538' },
+            { name: 'Emirates', site: 'https://www.emirates.com', color: '#d71921' },
+            { name: 'Ryanair', site: 'https://www.ryanair.com', color: '#073590' }
+        ];
+
+        const rates = { TND: 1, EUR: 0.3, USD: 0.33, AED: 1.2 };
+        const symbols = { TND: 'TND', EUR: '€', USD: '$', AED: 'د.إ' };
+
+        function randomPrice(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function randomTime() {
+            const h = String(Math.floor(Math.random() * 24)).padStart(2, '0');
+            const m = String(Math.floor(Math.random() * 60)).padStart(2, '0');
+            return h + ':' + m;
+        }
+
+        function addMinutes(time, mins) {
+            const [h, m] = time.split(':').map(Number);
+            const total = h * 60 + m + mins;
+            return String(Math.floor(total / 60) % 24).padStart(2, '0') + ':' + String(total % 60).padStart(2, '0');
+        }
+
+        function generateFlights(from, to, passengers, currency) {
+            return airlines.map(airline => {
+                const depTime = randomTime();
+                const duration = 60 + Math.floor(Math.random() * 240);
+                const arrTime = addMinutes(depTime, duration);
+                const priceTND = randomPrice(80, 600) * passengers;
+                const price = Math.round(priceTND * rates[currency]);
+                return { airline, depTime, duration, arrTime, price };
+            }).sort((a, b) => a.price - b.price);
+        }
+
+        const cars = [
+            { name: 'Citroën C1', seats: 4, type: 'Citadine', site: 'https://www.rentalcars.com', icon: '🚗' },
+            { name: 'Peugeot 208', seats: 5, type: 'Citadine', site: 'https://www.rentalcars.com', icon: '🚗' },
+            { name: 'Renault Clio', seats: 5, type: 'Citadine', site: 'https://www.rentalcars.com', icon: '🚗' },
+            { name: 'Volkswagen Golf', seats: 5, type: 'Berline', site: 'https://www.rentalcars.com', icon: '🚙' },
+            { name: 'Toyota Corolla', seats: 5, type: 'Berline', site: 'https://www.rentalcars.com', icon: '🚙' },
+            { name: 'Dacia Duster', seats: 5, type: 'SUV', site: 'https://www.rentalcars.com', icon: '🚙' },
+            { name: 'Peugeot 3008', seats: 5, type: 'SUV', site: 'https://www.rentalcars.com', icon: '🚙' },
+            { name: 'Renault Scénic', seats: 7, type: 'Monospace', site: 'https://www.rentalcars.com', icon: '🚐' },
+            { name: 'Volkswagen Sharan', seats: 7, type: 'Monospace', site: 'https://www.rentalcars.com', icon: '🚐' },
+            { name: 'Mercedes Vito', seats: 9, type: 'Minibus', site: 'https://www.rentalcars.com', icon: '🚐' }
+        ];
+
+        function generateCars(passengers, currency) {
+            return cars
+                .filter(c => c.seats >= passengers)
+                .map(c => {
+                    const priceTND = randomPrice(40, 150);
+                    const price = Math.round(priceTND * rates[currency]);
+                    return { ...c, price };
+                })
+                .sort((a, b) => a.price - b.price);
+        }
+
+        function renderCars(cars, currency, container) {
+            cars.forEach(c => {
+                const card = document.createElement('a');
+                card.href = c.site;
+                card.target = '_blank';
+                card.rel = 'noopener';
+                card.className = 'car-card';
+                card.innerHTML = `
+                    <div class="car-icon">${c.icon}</div>
+                    <div class="car-info">
+                        <div class="car-name">${c.name}</div>
+                        <div class="car-type">${c.type} · ${c.seats} places</div>
+                    </div>
+                    <div class="car-price">${c.price} ${symbols[currency]} <span class="car-perday">/jour</span></div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderFlights(flights, from, to, dateLabel, currency, container) {
+            const header = document.createElement('h2');
+            header.textContent = `Vols ${from} → ${to} du ${dateLabel}`;
+            container.appendChild(header);
+
+            flights.forEach(f => {
+                const card = document.createElement('a');
+                card.href = f.airline.site;
+                card.target = '_blank';
+                card.rel = 'noopener';
+                card.className = 'flight-card';
+                card.style.borderLeftColor = f.airline.color;
+
+                card.innerHTML = `
+                    <div class="flight-header">
+                        <span class="airline-name" style="color:${f.airline.color}">${f.airline.name}</span>
+                        <span class="flight-price">${f.price} ${symbols[currency]}</span>
+                    </div>
+                    <div class="flight-times">
+                        <span class="time">${f.depTime}</span>
+                        <span class="duration">${Math.floor(f.duration / 60)}h${f.duration % 60 > 0 ? (f.duration % 60) + 'min' : ''}</span>
+                        <span class="time">${f.arrTime}</span>
+                    </div>
+                    <div class="flight-route">${from} → ${to}</div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        document.getElementById('travelForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const from = document.getElementById('from').value.trim();
+            const to = document.getElementById('to').value.trim();
+            const departDate = document.getElementById('departDate').value;
+            const returnDate = document.getElementById('returnDate').value;
+            const passengers = parseInt(document.getElementById('passengers').value);
+            const currency = document.getElementById('currency').value;
+
+            const container = document.getElementById('results');
+            container.innerHTML = '';
+            container.classList.remove('hidden');
+
+            const dateLabel = new Date(departDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+            const allerFlights = generateFlights(from, to, passengers, currency);
+            renderFlights(allerFlights, from, to, dateLabel, currency, container);
+
+            if (returnDate) {
+                const returnLabel = new Date(returnDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+                const retourFlights = generateFlights(to, from, passengers, currency);
+                const returnHeader = document.createElement('h2');
+                returnHeader.textContent = `Vols ${to} → ${from} du ${returnLabel}`;
+                returnHeader.style.marginTop = '2rem';
+                container.appendChild(returnHeader);
+                renderFlights(retourFlights, to, from, returnLabel, currency, container);
+            }
+
+            const extra = document.createElement('div');
+            extra.className = 'extra-section';
+
+            extra.innerHTML = `
+                <h2 style="margin-top:2rem">🏨 Hôtels & Appartements à ${to}</h2>
+                <div class="extra-links">
+                    <a href="https://www.booking.com/searchresults.html?ss=${encodeURIComponent(to)}" target="_blank" rel="noopener" class="extra-card">
+                        <span class="extra-icon">🏨</span>
+                        <span class="extra-name">Booking.com</span>
+                        <span class="extra-desc">Hôtels, appartements, B&B</span>
+                    </a>
+                    <a href="https://www.airbnb.fr/s/${encodeURIComponent(to)}" target="_blank" rel="noopener" class="extra-card">
+                        <span class="extra-icon">🏠</span>
+                        <span class="extra-name">Airbnb</span>
+                        <span class="extra-desc">Appartements et maisons</span>
+                    </a>
+                    <a href="https://www.hotels.com/search.do?destination=${encodeURIComponent(to)}" target="_blank" rel="noopener" class="extra-card">
+                        <span class="extra-icon">🛏️</span>
+                        <span class="extra-name">Hotels.com</span>
+                        <span class="extra-desc">Hôtels partout dans le monde</span>
+                    </a>
+                </div>
+
+                <h2 style="margin-top:2rem">🚗 Location de voiture à ${to}</h2>
+                <div id="carsContainer" class="cars-grid"></div>
+                <p class="cars-note">${passengers} passager${passengers > 1 ? 's' : ''} · voitures avec ${passengers} place${passengers > 1 ? 's' : ''} minimum</p>
+                <a href="https://www.rentalcars.com/Search?pickup=${encodeURIComponent(to)}" target="_blank" rel="noopener" class="btn btn-small">Voir plus sur Rentalcars →</a>
+            `;
+
+            container.appendChild(extra);
+
+            const carsList = generateCars(passengers, currency);
+            renderCars(carsList, currency, document.getElementById('carsContainer'));
+
+            container.scrollIntoView({ behavior: 'smooth' });
+        });
+    </script>
+</body>
+</html>
