@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Agenda</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="cart.js"></script>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="back">← Retour</a>
+        <h1>📅 Mon Agenda</h1>
+        <p>Planifie tes repas jour par jour</p>
+    </header>
+
+    <main>
+        <div id="mealPlanSection"></div>
+    </main>
+
+    <script>
+        function renderMealPlan() {
+            const section = document.getElementById('mealPlanSection');
+            const plan = getMealPlan();
+            if (!plan.length) {
+                section.innerHTML = '<p class="empty-msg">Aucun repas planifié. Utilise le bouton "📅 Planifier" sur une recette pour l\'ajouter à ton agenda.</p>';
+                return;
+            }
+
+            const groups = {};
+            plan.forEach(e => {
+                if (!groups[e.date]) groups[e.date] = {};
+                if (!groups[e.date][e.mealTime]) groups[e.date][e.mealTime] = [];
+                groups[e.date][e.mealTime].push(e);
+            });
+
+            const sortedDates = Object.keys(groups).sort();
+
+            let html = '<div class="meal-grid">';
+            sortedDates.forEach(date => {
+                html += `<div class="meal-day-card"><h3>📅 ${formatDate(date)}</h3>`;
+                mealTimes.forEach(time => {
+                    const meals = groups[date][time];
+                    if (meals && meals.length) {
+                        html += `<div class="meal-time-block"><strong>${time}</strong><ul>`;
+                        meals.forEach(m => {
+                            const realIdx = plan.indexOf(m);
+                            html += `<li>${m.recipeName} <button class="btn-remove-small" data-mpidx="${realIdx}">✕</button></li>`;
+                        });
+                        html += `</ul></div>`;
+                    }
+                });
+                html += `</div>`;
+            });
+            html += '</div>';
+            html += '<div style="text-align:center;margin-top:1.5rem;"><button id="clearMealPlanBtn" class="btn btn-clear">Vider l\'agenda</button></div>';
+            section.innerHTML = html;
+
+            document.querySelectorAll('.btn-remove-small').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    removeFromMealPlan(parseInt(btn.dataset.mpidx));
+                    renderMealPlan();
+                });
+            });
+
+            const clearBtn = document.getElementById('clearMealPlanBtn');
+            if (clearBtn) {
+                clearBtn.addEventListener('click', () => {
+                    if (confirm('Vider tout l\'agenda ?')) {
+                        clearMealPlan();
+                        renderMealPlan();
+                    }
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', renderMealPlan);
+    </script>
+</body>
+</html>

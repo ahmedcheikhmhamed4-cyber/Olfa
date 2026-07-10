@@ -1,4 +1,5 @@
 const CART_KEY = 'olfa_cart';
+const MEAL_PLAN_KEY = 'olfa_meal_plan';
 
 const unionCoopPrices = [
     { keywords: ['semoule'], name: 'Semoule fine', price: 3.5, unit: '500g' },
@@ -163,6 +164,46 @@ const frToEn = {
   'mayonnaise': 'mayonnaise',
   'ketchup': 'ketchup',
 };
+
+function getMealPlan() {
+    try {
+        return JSON.parse(localStorage.getItem(MEAL_PLAN_KEY)) || [];
+    } catch {
+        return [];
+    }
+}
+
+function saveMealPlan(plan) {
+    localStorage.setItem(MEAL_PLAN_KEY, JSON.stringify(plan));
+}
+
+function addToMealPlan(recipeName, date, mealTime) {
+    const plan = getMealPlan();
+    plan.push({ recipeName, date, mealTime, dateAdded: Date.now() });
+    saveMealPlan(plan);
+}
+
+function removeFromMealPlan(index) {
+    const plan = getMealPlan();
+    plan.splice(index, 1);
+    saveMealPlan(plan);
+}
+
+function clearMealPlan() {
+    localStorage.removeItem(MEAL_PLAN_KEY);
+}
+
+const mealTimes = ['Petit-déjeuner', 'Déjeuner', 'Dîner', 'Goûter'];
+
+function formatDate(dateStr) {
+    const [y, m, d] = dateStr.split('-');
+    return `${d}/${m}/${y}`;
+}
+
+function todayStr() {
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
 
 function translateIngredient(fr) {
   const lower = fr.toLowerCase().trim();

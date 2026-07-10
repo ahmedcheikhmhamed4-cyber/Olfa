@@ -39,8 +39,26 @@
             </div>
         </div>
 
+        <div class="filter-bar">
+            <input type="text" id="searchInput" class="filter-search" placeholder="🔍 Chercher un gâteau...">
+        </div>
         <div class="grid" id="recipesGrid"></div>
     </main>
+
+    <div id="mealModal" class="modal-overlay hidden">
+        <div class="modal">
+            <h3>📅 Planifier un repas</h3>
+            <p id="mealModalRecipe" class="modal-recipe-name"></p>
+            <label>Date :</label>
+            <input type="date" id="mealDate" class="meal-select">
+            <label>Moment :</label>
+            <select id="mealTime" class="meal-select"></select>
+            <div class="modal-buttons">
+                <button id="mealSaveBtn" class="btn">Ajouter</button>
+                <button id="mealCancelBtn" class="btn btn-clear">Annuler</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         const recipes = [
@@ -792,6 +810,69 @@
                 diff: 'easy',
                 ingredients: ['200g biscuits', '80g beurre', '600g cream cheese', '150g sucre', '3 œufs', 'Confiture au choix'],
                 instructions: 'Écraser les biscuits avec le beurre. Répartir dans des moules individuels. Battre le cream cheese avec le sucre et les œufs. Verser sur les croûtes. Cuire 20min à 160°C. Garnir de confiture.'
+            },
+            {
+                name: 'Banana bread',
+                desc: 'Mama et Nadour recipe',
+                diff: 'medium',
+                ingredients: ['3 bananas', '90ml huile d\'olive', '90ml eau', '3 œufs', '60g sucre brun', '1.5 cac vanille', '1.5 cac levure', '1.5 cac bicarbonate de soude', '240g farine', 'Pincee de sel', '150g chocolat noir', 'Noix', '40min a 180C'],
+                instructions: 'Voir la recette originale.'
+            },
+            {
+                name: 'Cookies chocolate et cookies Avoine',
+                desc: 'Cookies chocolate et cookies Avoine',
+                diff: 'medium',
+                ingredients: [],
+                instructions: 'Voir la recette originale.'
+            },
+            {
+                name: 'Crepes + Gauffres',
+                desc: 'Crepes + Gauffres',
+                diff: 'medium',
+                ingredients: [],
+                instructions: 'Voir la recette originale.'
+            },
+            {
+                name: 'Gateau zebre',
+                desc: 'Gateau zebre',
+                diff: 'medium',
+                ingredients: [],
+                instructions: 'Voir la recette originale.'
+            },
+            {
+                name: 'Gâteau Droo',
+                desc: 'Gâteau Droo',
+                diff: 'medium',
+                ingredients: [],
+                instructions: 'Voir la recette originale.'
+            },
+            {
+                name: 'Gâteau droo',
+                desc: 'Gâteau droo',
+                diff: 'medium',
+                ingredients: [],
+                instructions: 'Voir la recette originale.'
+            },
+            {
+                name: 'Muffins aux pepites chocolat',
+                desc: 'Muffins aux pepites chocolat',
+                diff: 'medium',
+                ingredients: [],
+                instructions: 'Voir la recette originale.'
+            },
+            {
+                name: 'Muffins chocolat légumes',
+                desc: 'Muffins chocolat légumes',
+                diff: 'medium',
+                ingredients: [],
+                instructions: 'Voir la recette originale.'
+            },
+            {
+                name: 'Pancake',
+                desc: 'Pancake',
+                diff: 'medium',
+                ingredients: [],
+                instructions: 'Voir la recette originale.'
             }
         ];
 
@@ -805,7 +886,12 @@
 
         function renderRecipes() {
             grid.innerHTML = '';
-            const sorted = [...recipes].sort((a, b) => diffOrder[a.diff] - diffOrder[b.diff]);
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            let filtered = recipes;
+            if (query) {
+                filtered = filtered.filter(r => r.name.toLowerCase().includes(query));
+            }
+            const sorted = [...filtered].sort((a, b) => diffOrder[a.diff] - diffOrder[b.diff]);
 
             sorted.forEach(r => {
                 const item = document.createElement('article');
@@ -816,6 +902,15 @@
                 const header = document.createElement('div');
                 header.className = 'recipe-header';
                 header.innerHTML = `<h3>${r.name} <span class="diff-badge ${r.diff}">${badges[r.diff]}</span></h3><p>${r.desc}</p>`;
+                const planBadge = document.createElement('button');
+                planBadge.className = 'btn-plan-badge';
+                planBadge.textContent = '📅';
+                planBadge.title = 'Planifier ce repas';
+                planBadge.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openMealPlanner(r.name);
+                });
+                header.appendChild(planBadge);
 
                 const content = document.createElement('div');
                 content.className = 'recipe-content hidden';
@@ -851,9 +946,13 @@
                 item.appendChild(content);
                 grid.appendChild(item);
             });
+
+            if (!filtered.length) {
+                grid.innerHTML = '<p class="empty-msg">Aucun gâteau trouvé.</p>';
+            }
         }
 
-        addBtn.addEventListener('click', () => addForm.classList.toggle('hidden'));
+        document.getElementById('searchInput').addEventListener('input', renderRecipes);
 
         cancelBtn.addEventListener('click', () => {
             addForm.classList.add('hidden');
@@ -893,6 +992,43 @@
         });
 
         renderRecipes();
+
+        let plannerRecipeName = '';
+
+        function openMealPlanner(name) {
+            plannerRecipeName = name;
+            document.getElementById('mealModalRecipe').textContent = name;
+            document.getElementById('mealModal').classList.remove('hidden');
+        }
+
+        const dateInput = document.getElementById('mealDate');
+        dateInput.value = todayStr();
+
+        const timeSelect = document.getElementById('mealTime');
+        mealTimes.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t;
+            opt.textContent = t;
+            timeSelect.appendChild(opt);
+        });
+
+        document.getElementById('mealSaveBtn').addEventListener('click', () => {
+            const date = dateInput.value;
+            const time = timeSelect.value;
+            addToMealPlan(plannerRecipeName, date, time);
+            document.getElementById('mealModal').classList.add('hidden');
+            alert(`✓ "${plannerRecipeName}" ajouté au ${formatDate(date)} (${time})`);
+        });
+
+        document.getElementById('mealCancelBtn').addEventListener('click', () => {
+            document.getElementById('mealModal').classList.add('hidden');
+        });
+
+        document.getElementById('mealModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                document.getElementById('mealModal').classList.add('hidden');
+            }
+        });
     </script>
 </body>
 </html>

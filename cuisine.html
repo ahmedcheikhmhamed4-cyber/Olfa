@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cuisine Tunisienne</title>
+    <title>Cusine</title>
     <link rel="stylesheet" href="style.css">
     <script src="cart.js"></script>
 </head>
 <body>
     <header>
         <a href="index.html" class="back">← Retour</a>
-        <h1>🍽️ Cuisine Tunisienne</h1>
-        <p>Les meilleurs plats de Tunisie</p>
+        <h1>🍽️ Cusine</h1>
+        <p>Toutes les recettes et plats</p>
     </header>
 
     <main>
@@ -29,8 +29,32 @@
             </div>
         </div>
 
+        <div class="filter-bar">
+            <input type="text" id="searchInput" class="filter-search" placeholder="🔍 Chercher une recette...">
+            <div class="filter-tabs">
+                <button class="filter-btn active" data-filter="all">Tout</button>
+                <button class="filter-btn" data-filter="plat">🍽️ Plats</button>
+                <button class="filter-btn" data-filter="entree">🥗 Entrées</button>
+                <button class="filter-btn" data-filter="dessert">🍰 Desserts</button>
+            </div>
+        </div>
         <div class="grid" id="recipesGrid"></div>
     </main>
+
+    <div id="mealModal" class="modal-overlay hidden">
+        <div class="modal">
+            <h3>📅 Planifier un repas</h3>
+            <p id="mealModalRecipe" class="modal-recipe-name"></p>
+            <label>Date :</label>
+            <input type="date" id="mealDate" class="meal-select">
+            <label>Moment :</label>
+            <select id="mealTime" class="meal-select"></select>
+            <div class="modal-buttons">
+                <button id="mealSaveBtn" class="btn">Ajouter</button>
+                <button id="mealCancelBtn" class="btn btn-clear">Annuler</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         const recipes = [
@@ -205,520 +229,942 @@
             {
                 name: 'Pizza Margherita (Italie)',
                 desc: 'La pizza napolitaine classique, tomate, mozzarella et basilic.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['300g farine', '200ml eau tiède', '1 sachet levure boulangère', '200g tomates pelées', '200g mozzarella', 'Basilic frais', 'Huile d\'olive', 'Sel'],
                 instructions: 'Préparer la pâte avec farine, eau, levure et sel. Laisser reposer 2h. Étaler la pâte, garnir de tomates écrasées et de mozzarella. Cuire au four à 250°C pendant 10min. Ajouter le basilic frais et un filet d\'huile d\'olive.'
             },
             {
                 name: 'Tiramisu (Italie)',
                 desc: 'Dessert italien au café et mascarpone, sans cuisson.',
-                cat: 'international',
+                cat: 'dessert',
                 ingredients: ['500g mascarpone', '4 œufs', '100g sucre', '200g biscuits à la cuillère', 'Café noir fort', 'Cacao en poudre'],
                 instructions: 'Séparer les blancs des jaunes. Fouetter les jaunes avec le sucre puis ajouter le mascarpone. Monter les blancs en neige et les incorporer. Tremper les biscuits dans le café. Alterner couches de biscuits et crème. Réfrigérer 4h. Saupoudrer de cacao.'
             },
             {
                 name: 'Sushi (Japon)',
                 desc: 'Riz vinaigré garni de poisson cru, frais et délicat.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['300g riz à sushi', '4 càs vinaigre de riz', '2 càs sucre', '200g saumon frais', 'Algues nori', 'Wasabi, gingembre, sauce soja'],
                 instructions: 'Cuire le riz et l\'assaisonner avec le vinaigre sucré. Laisser refroidir. Couper le saumon en fines tranches. Humidifier les mains et former des petites boules de riz. Déposer une tranche de poisson dessus. Servir avec wasabi, gingembre et sauce soja.'
             },
             {
                 name: 'Mochi (Japon)',
                 desc: 'Gâteau de riz gluant fourré à la pâte de haricot rouge ou glace.',
-                cat: 'international',
+                cat: 'dessert',
                 ingredients: ['200g farine de riz gluant', '150g sucre', '200ml eau', 'Fécule de maïs', 'Glace ou pâte de haricot rouge'],
                 instructions: 'Mélanger la farine de riz, le sucre et l\'eau. Cuire à la vapeur 20min. Laisser refroidir légèrement. Saupoudrer de fécule de maïs. Étaler la pâte et découper des cercles. Déposer une boule de glace au centre et refermer. Servir frais.'
             },
             {
                 name: 'Tacos (Mexique)',
                 desc: 'Tortillas garnies de viande épicée, salsa et guacamole.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['8 tortillas de maïs', '400g bœuf haché', '1 oignon', '2 tomates', '1 avocat', 'Citron vert', 'Coriandre fraîche', 'Sel, cumin, piment'],
                 instructions: 'Cuire le bœuf avec l\'oignon, le cumin et le piment. Préparer la salsa avec tomates, oignon et coriandre. Écraser l\'avocat avec du citron pour le guacamole. Chauffer les tortillas. Garnir de viande, salsa et guacamole.'
             },
             {
                 name: 'Churros (Mexique/Espagne)',
                 desc: 'Beignets frits croustillants saupoudrés de sucre et cannelle.',
-                cat: 'international',
+                cat: 'dessert',
                 ingredients: ['250ml eau', '125g beurre', '150g farine', '3 œufs', 'Sucre', 'Cannelle', 'Huile pour friture', 'Chocolat chaud'],
                 instructions: 'Faire bouillir l\'eau avec le beurre. Ajouter la farine d\'un coup et mélanger. Hors du feu, ajouter les œufs un par un. Remplir une poche à douille cannelée. Frire des bâtonnets dans l\'huile chaude. Rouler dans le sucre à la cannelle. Servir avec du chocolat chaud.'
             },
             {
                 name: 'Butter Chicken / Poulet au Beurre (Inde)',
                 desc: 'Poulet mariné dans une sauce tomate crémeuse et épicée.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['500g poulet', '200g yaourt', '400g tomates concassées', '100ml crème', '2 càs beurre', 'Gingembre, ail', 'Garam masala, curcuma, cumin', 'Riz basmati'],
                 instructions: 'Mariner le poulet dans le yaourt et les épices 2h. Le griller au four. Faire revenir l\'ail et le gingembre, ajouter les tomates et mijoter 15min. Mixer la sauce, ajouter la crème et le beurre. Ajouter le poulet et cuire 10min. Servir avec du riz basmati.'
             },
             {
                 name: 'Gulab Jamun (Inde)',
                 desc: 'Boules de lait frites dans un sirop parfumé à la rose et à la cardamome.',
-                cat: 'international',
+                cat: 'dessert',
                 ingredients: ['200g lait en poudre', '100g farine', '1 càc levure', '100ml lait', '300g sucre', '400ml eau', 'Eau de rose', 'Cardamome'],
                 instructions: 'Mélanger le lait en poudre, la farine et la levure. Ajouter le lait progressivement pour former une pâte molle. Former des petites boules lisses. Les frire à feu doux dans l\'huile jusqu\'à dorure. Les tremper dans le sirop chaud parfumé à la rose et cardamome.'
             },
             {
                 name: 'Bœuf Bourguignon (France)',
                 desc: 'Ragoût de bœuf mijoté au vin rouge avec des légumes.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['1kg bœuf à braiser', '750ml vin rouge', '200g lardons', '3 carottes', '1 oignon', '2 gousses ail', 'Bouquet garni', 'Champignons', 'Sel, poivre'],
                 instructions: 'Couper la viande en cubes et la mariner dans le vin avec les légumes 12h. Égoutter et faire revenir la viande avec les lardons. Ajouter la marinade, l\'ail et le bouquet garni. Mijoter 3h à feu doux. Ajouter les champignons en fin de cuisson. Servir avec des pommes de terre.'
             },
             {
                 name: 'Crème Brûlée (France)',
                 desc: 'Crème onctueuse à la vanille caramélisée au sucre.',
-                cat: 'international',
+                cat: 'dessert',
                 ingredients: ['500ml crème liquide', '5 jaunes d\'œufs', '100g sucre', '1 gousse vanille', 'Sucre cassonade pour caraméliser'],
                 instructions: 'Faire chauffer la crème avec la vanille. Fouetter les jaunes avec le sucre. Verser la crème chaude sur les œufs en remuant. Répartir dans des ramequins. Cuire au bain-marie à 150°C pendant 40min. Réfrigérer 4h. Saupoudrer de cassonade et caraméliser au chalumeau.'
             },
             {
                 name: 'Cheeseburger (USA)',
                 desc: 'Steak haché avec fromage fondu, salade et sauce dans un bun.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['4 buns à burger', '500g bœuf haché', '4 tranches cheddar', '4 feuilles salade', '2 tomates', '1 oignon', 'Ketchup, moutarde', 'Sel, poivre'],
                 instructions: 'Former 4 steaks hachés et les assaisonner. Les cuire à la poêle 3min de chaque côté. Déposer une tranche de cheddar sur chaque steak et couvrir pour faire fondre. Toaster les buns. Monter les burgers : salade, steak, tomate, oignon, sauce.'
             },
             {
                 name: 'Cheesecake New Yorkais (USA)',
                 desc: 'Gâteau au fromage crémeux sur une croûte de biscuits.',
-                cat: 'international',
+                cat: 'dessert',
                 ingredients: ['200g biscuits Graham', '80g beurre fondu', '900g cream cheese', '200g sucre', '4 œufs', '1 càc vanille', '200ml crème'],
                 instructions: 'Écraser les biscuits et mélanger avec le beurre. Tasser dans un moule. Battre le cream cheese avec le sucre. Ajouter les œufs, la vanille et la crème. Verser sur la croûte. Cuire au bain-marie à 160°C pendant 1h. Laisser refroidir et réfrigérer 6h.'
             },
             {
                 name: 'Dim Sum (Chine)',
                 desc: 'Raviolis chinois farcis à la vapeur, servis avec sauce soja.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['300g farine', '200ml eau chaude', '300g porc haché', '1 càc gingembre râpé', '2 cébettes', '1 càs sauce soja', 'Sésame'],
                 instructions: 'Mélanger farine et eau pour former une pâte. Laisser reposer 30min. Mélanger le porc avec le gingembre, les cébettes et la sauce soja. Abaisser la pâte et découper des cercles. Déposer la farce et plier en raviolis. Cuire à la vapeur 10min. Servir avec sauce soja.'
             },
             {
                 name: 'Nian Gao (Chine)',
                 desc: 'Gâteau de riz gluant sucré pour le Nouvel An chinois.',
-                cat: 'international',
+                cat: 'dessert',
                 ingredients: ['300g farine de riz gluant', '200g sucre brun', '300ml eau', '1 càc vanille', 'Huile'],
                 instructions: 'Mélanger la farine de riz avec le sucre et l\'eau jusqu\'à obtenir une pâte lisse. Ajouter la vanille. Verser dans un moule huilé. Cuire à la vapeur 45min. Laisser refroidir avant de démouler. Trancher et servir nature ou poêlé.'
             },
             {
                 name: 'Pad Thaï (Thaïlande)',
                 desc: 'Nouilles de riz sautées aux crevettes, cacahuètes et tamarin.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['200g nouilles de riz', '200g crevettes', '2 œufs', '100g pousses de soja', 'Cacahuètes concassées', '3 càs sauce tamarin', '2 càs sauce poisson', 'Citron vert, coriandre'],
                 instructions: 'Tremper les nouilles 30min dans l\'eau froide. Les sauter dans un wok avec un peu d\'huile. Pousser sur le côté et cuire les œufs brouillés. Ajouter les crevettes, la sauce tamarin et la sauce poisson. Ajouter les pousses de soja. Servir avec cacahuètes, coriandre et citron vert.'
             },
             {
                 name: 'Mango Sticky Rice (Thaïlande)',
                 desc: 'Riz gluant à la mangue et au lait de coco, dessert thaï.',
-                cat: 'international',
+                cat: 'dessert',
                 ingredients: ['200g riz gluant', '400ml lait de coco', '100g sucre', '1 pincée sel', '2 mangues mûres', 'Sésame grillé'],
                 instructions: 'Tremper le riz gluant 4h puis le cuire à la vapeur 25min. Chauffer le lait de coco avec le sucre et le sel. Verser la moitié sur le riz cuit et mélanger. Laisser reposer 15min. Servir le riz avec des tranches de mangue et le reste de sauce coco. Parsemer de sésame.'
             },
             {
                 name: 'Paella (Espagne)',
                 desc: 'Riz espagnol aux fruits de mer, safran et légumes.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['300g riz rond', '500g fruits de mer', '1 poivron rouge', '100g petits pois', '1 oignon', '2 gousses ail', 'Safran', 'Bouillon de poisson', 'Huile d\'olive'],
                 instructions: 'Faire revenir l\'oignon, l\'ail et le poivron dans l\'huile d\'olive. Ajouter le riz et le safran. Mouiller avec le bouillon chaud. Ajouter les fruits de mer et les petits pois. Cuire 20min à feu doux sans remuer. Laisser reposer 5min hors du feu avant de servir.'
             },
             {
                 name: 'Crema Catalana (Espagne)',
                 desc: 'Crème dessert espagnole à la cannelle et au citron, caramélisée.',
-                cat: 'international',
+                cat: 'dessert',
                 ingredients: ['500ml lait', '5 jaunes d\'œufs', '100g sucre', '1 bâton cannelle', 'Zeste de citron', 'Fécule de maïs', 'Sucre pour caraméliser'],
                 instructions: 'Faire infuser le lait avec la cannelle et le zeste de citron. Fouetter les jaunes avec le sucre et la fécule. Verser le lait chaud sur les œufs. Cuire à feu doux en remuant jusqu\'à épaississement. Verser dans des ramequins. Réfrigérer. Caraméliser le sucre au chalumeau avant de servir.'
             },
             {
                 name: 'Kebab (Turquie)',
                 desc: 'Viande grillée épicée servie avec pain, légumes et sauce.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['500g agneau haché', '1 oignon râpé', '2 gousses ail', '1 càc cumin', '1 càc paprika', 'Pain pita', 'Tomates, oignons, salade', 'Sauce yaourt'],
                 instructions: 'Mélanger la viande avec l\'oignon, l\'ail et les épices. Former des brochettes allongées. Griller au barbecue ou à la poêle 10min. Chauffer le pain pita. Garnir de viande, légumes frais et sauce yaourt.'
             },
             {
                 name: 'Künefe (Turquie)',
                 desc: 'Pâtisserie au fromage filandreux, sirop et pistaches.',
-                cat: 'international',
+                cat: 'dessert',
                 ingredients: ['300g kadayif (cheveux d\'ange)', '200g fromage à pâte filée', '150g beurre fondu', '300g sucre', '200ml eau', 'Pistaches concassées'],
                 instructions: 'Préparer le sirop avec sucre et eau, laisser refroidir. Effilocher le kadayif et mélanger avec le beurre fondu. Disposer une couche dans un plat, ajouter le fromage, couvrir du reste de kadayif. Cuire au four à 200°C jusqu\'à dorure. Verser le sirop chaud et parsemer de pistaches.'
             },
             {
                 name: 'Feijoada (Brésil)',
                 desc: 'Ragoût de haricots noirs et viandes de porc, plat national brésilien.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['500g haricots noirs', '300g porc (côtes, lard)', '200g saucisse fumée', '1 oignon', '2 gousses ail', 'Feuille de laurier', 'Sel, poivre', 'Riz blanc'],
                 instructions: 'Tremper les haricots noirs la veille. Les cuire dans une grande marmite avec le laurier. Faire revenir les viandes avec l\'oignon et l\'ail. Ajouter aux haricots et mijoter 2h. Assaisonner. Servir avec du riz blanc, des tranches d\'orange et de la farine de manioc.'
             },
             {
                 name: 'Brigadeiro (Brésil)',
                 desc: 'Petites truffes au chocolat brésiliennes, faciles et gourmandes.',
-                cat: 'international',
+                cat: 'dessert',
                 ingredients: ['1 boîte lait concentré (395g)', '3 càs cacao en poudre', '1 càs beurre', 'Chocolat granulé pour enrobage'],
                 instructions: 'Mélanger le lait concentré, le cacao et le beurre dans une casserole. Cuire à feu doux en remuant jusqu\'à ce que la crème se détache du fond. Laisser refroidir. Graisser les mains avec du beurre et former des petites boules. Rouler dans le chocolat granulé.'
             },
             {
                 name: 'Ceviche (Pérou)',
                 desc: 'Poisson cru mariné au citron vert avec oignon rouge et piment.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['400g poisson blanc frais', '1 oignon rouge', 'Jus de 6 citrons verts', '1 piment', 'Coriandre fraîche', 'Sel, poivre', 'Patate douce, maïs'],
                 instructions: 'Couper le poisson en dés. Le mariner dans le jus de citron avec sel et piment 15min. Ajouter l\'oignon émincé et la coriandre. Servir avec des tranches de patate douce cuite et du maïs grillé.'
             },
             {
                 name: 'Poutine (Canada)',
                 desc: 'Frites recouvertes de fromage en grains et de sauce brune.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['500g pommes de terre', '200g fromage en grains', '300ml sauce brune', 'Huile pour friture', 'Sel'],
                 instructions: 'Couper les pommes de terre en frites et les frire jusqu\'à dorure. Disposer dans une assiette. Parsemer de fromage en grains. Verser la sauce brune chaude par-dessus. Servir immédiatement.'
             },
             {
                 name: 'Asado (Argentine)',
                 desc: 'Viande de bœuf grillée lentement au barbecue, plat national argentin.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['1kg bœuf (entrecôte, bavette)', 'Sel gros', 'Chimichurri (persil, ail, vinaigre, huile)', 'Charbon de bois'],
                 instructions: 'Saler la viande généreusement. La faire griller au barbecue à feu doux 30-40min en retournant une fois. Laisser reposer 5min. Servir avec du chimichurri.'
             },
             {
                 name: 'Pastel de Choclo (Chili)',
                 desc: 'Gratin de maïs sucré farci à la viande, poulet et œuf.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['500g maïs en grains', '300g bœuf haché', '200g poulet', '2 oignons', '2 œufs durs', 'Olives', 'Lait', 'Sucre'],
                 instructions: 'Faire revenir la viande et le poulet avec l\'oignon. Mixer le maïs avec du lait. Disposer la viande dans un plat, ajouter œuf dur et olives. Couvrir de purée de maïs sucrée. Cuire au four à 180°C 30min jusqu\'à dorure.'
             },
             {
                 name: 'Alfajores (Argentine/Uruguay)',
                 desc: 'Biscuits sablés fourrés au dulce de leche et enrobés de chocolat.',
-                cat: 'international',
+                cat: 'dessert',
                 ingredients: ['200g farine', '100g fécule de maïs', '150g beurre', '100g sucre', '2 jaunes', 'Dulce de leche', 'Chocolat noir'],
                 instructions: 'Mélanger farine, fécule, beurre, sucre et jaunes. Former une pâte et laisser reposer 30min. Étaler et découper des cercles. Cuire au four 12min à 180°C. Coller deux biscuits avec du dulce de leche. Tremper dans le chocolat fondu.'
             },
             {
                 name: 'Bandeja Paisa (Colombie)',
                 desc: 'Plat copieux avec riz, haricots, viande, œuf, avocat et plantain.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['300g riz', '200g haricots rouges', '200g bœuf haché', '2 œufs', '1 avocat', '1 plantain mûr', 'Chorizo', 'Arepas'],
                 instructions: 'Cuire le riz et les haricots séparément. Frire le plantain en tranches. Cuire le bœuf et le chorizo. Frire les œufs. Servir le tout dans une grande assiette avec l\'avocat et les arepas.'
             },
             {
                 name: 'Pabellón Criollo (Venezuela)',
                 desc: 'Riz, haricots noirs, viande effilochée et plantain frit.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['300g riz', '200g haricots noirs', '400g bœuf', '2 plantains mûrs', '1 oignon', '2 gousses ail', 'Fromage râpé'],
                 instructions: 'Cuire le riz. Faire revenir l\'oignon et l\'ail, ajouter les haricots noirs cuits. Effilocher le bœuf cuit et le faire revenir. Frire les plantains en tranches. Servir le tout avec du fromage râpé.'
             },
             {
                 name: 'Ropa Vieja (Cuba)',
                 desc: 'Bœuf effiloché mijoté dans une sauce tomate aux poivrons.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['500g bœuf à braiser', '1 boîte tomates concassées', '1 poivron rouge', '1 oignon', '2 gousses ail', 'Cumin', 'Riz blanc, haricots noirs'],
                 instructions: 'Cuire le bœuf dans l\'eau jusqu\'à tendreté. L\'effilocher. Faire revenir l\'oignon, le poivron et l\'ail. Ajouter la tomate, le cumin et le bœuf. Mijoter 20min. Servir avec du riz blanc et des haricots noirs.'
             },
             {
                 name: 'Jerk Chicken (Jamaïque)',
                 desc: 'Poulet mariné épicé grillé, emblème de la Jamaïque.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['1 poulet entier', '2 piments Scotch Bonnet', '3 gousses ail', '1 càs gingembre', '1 càs thym', '1 càc cannelle', 'Jus de citron vert', 'Sel, poivre'],
                 instructions: 'Mixer tous les ingrédients pour faire la marinade. Inciser le poulet et le mariner 4h. Griller au barbecue 40min en retournant régulièrement. Servir avec du riz et des pois.'
             },
             {
                 name: 'Griot (Haïti)',
                 desc: 'Porc mariné au citron et piment, frit jusqu\'au croustillant.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['600g épaule de porc', 'Jus de 3 citrons verts', '2 gousses ail', '1 piment', 'Thym', 'Sel, poivre', 'Huile pour friture'],
                 instructions: 'Couper le porc en cubes. Le mariner avec le citron, l\'ail, le piment et le thym 2h. Cuire le porc dans l\'eau 30min. L\'égoutter et le frire dans l\'huile chaude jusqu\'à dorure. Servir avec du riz et des bananes plantains.'
             },
             {
                 name: 'Gallo Pinto (Costa Rica)',
                 desc: 'Riz et haricots rouges sautés au petit-déjeuner costaricien.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['300g riz cuit', '200g haricots rouges cuits', '1 oignon', '1 poivron', 'Ail', 'Coriandre', 'Sauce Lizano', 'Huile'],
                 instructions: 'Faire revenir l\'oignon, le poivron et l\'ail dans l\'huile. Ajouter le riz et les haricots. Ajouter la sauce Lizano et la coriandre. Sauter 5min. Servir avec des œufs.'
             },
             {
                 name: 'Mofongo (Porto Rico)',
                 desc: 'Purée de plantains verts frits à l\'ail et garnie de viande.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['3 plantains verts', '4 gousses ail', '200g chicharrón', 'Huile', 'Bouillon de poulet', 'Sel'],
                 instructions: 'Peler et couper les plantains en rondelles. Les frire. Les écraser avec l\'ail et le chicharrón. Ajouter du bouillon. Former des boules et servir avec une sauce.'
             },
             {
                 name: 'Pupusas (Salvador)',
                 desc: 'Galettes de maïs farcies au fromage, haricots ou viande.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['500g farine de maïs', '300g fromage', '200g haricots noirs cuits', 'Eau tiède', 'Sel', 'Currút'],
                 instructions: 'Mélanger la farine de maïs avec l\'eau et le sel. Farce : mélanger fromage et haricots. Former une galette, mettre la farce au centre, refermer. Cuire sur une poêle chaude 3min de chaque côté.'
             },
             {
                 name: 'Fish and Chips (Royaume-Uni)',
                 desc: 'Poisson frit pané avec des frites épaisses.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['4 filets cabillaud', '200g farine', '1 bière', '1 càc levure', '4 pommes de terre', 'Huile', 'Sel, vinaigre'],
                 instructions: 'Préparer la pâte avec farine, bière et levure. Frire les frites. Tremper le poisson dans la pâte et le frire 5min. Servir avec des frites et du vinaigre.'
             },
             {
                 name: 'Wiener Schnitzel (Autriche)',
                 desc: 'Escalope de veau panée et frite, croustillante.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['4 escalopes de veau', '100g farine', '2 œufs', '150g chapelure', 'Huile', 'Citron', 'Sel, poivre'],
                 instructions: 'Aplatir les escalopes. Les passer dans farine, œufs puis chapelure. Frire 3min de chaque côté. Servir avec des quartiers de citron.'
             },
             {
                 name: 'Forêt-Noire (Allemagne)',
                 desc: 'Gâteau au chocolat, chantilly et cerises.',
-                cat: 'international',
+                cat: 'dessert',
                 ingredients: ['200g farine', '100g cacao', '200g sucre', '4 œufs', '400ml crème', 'Cerises', 'Chocolat râpé'],
                 instructions: 'Cuire un gâteau au chocolat. Le couper en 3. Monter la crème en chantilly. Monter le gâteau en alternant crème et cerises. Couvrir de chantilly et décorer de chocolat.'
             },
             {
                 name: 'Moussaka (Grèce)',
                 desc: 'Gratin d\'aubergines, viande hachée et béchamel.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['3 aubergines', '500g viande hachée', '1 oignon', '400g tomates', '50cl lait', '50g beurre', '50g farine'],
                 instructions: 'Trancher les aubergines et les griller. Faire revenir la viande. Préparer une béchamel. Alterner aubergines et viande. Couvrir de béchamel. Cuire 40min à 180°C.'
             },
             {
                 name: 'Bacalhau à Brás (Portugal)',
                 desc: 'Morue effilochée avec pommes de terre paille et œufs.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['400g morue', '300g pommes de terre paille', '4 œufs', '1 oignon', 'Olives noires', 'Persil', 'Huile d\'olive'],
                 instructions: 'Effilocher la morue cuite. Faire revenir l\'oignon. Ajouter la morue et les pommes de terre. Verser les œufs battus. Cuire 2min. Parsemer d\'olives et de persil.'
             },
             {
                 name: 'Pastel de Nata (Portugal)',
                 desc: 'Tartelettes à la crème emblématiques du Portugal.',
-                cat: 'international',
+                cat: 'dessert',
                 ingredients: ['1 pâte feuilletée', '500ml lait', '4 jaunes', '150g sucre', '2 càs farine', 'Cannelle'],
                 instructions: 'Faire chauffer le lait. Battre jaunes, sucre et farine. Verser le lait chaud. Cuire jusqu\'à épaississement. Verser sur la pâte dans des moules. Cuire 15min à 250°C.'
             },
             {
                 name: 'Gaufres de Liège (Belgique)',
                 desc: 'Gaufres épaisses au sucre perlé caramélisé.',
-                cat: 'international',
+                cat: 'dessert',
                 ingredients: ['500g farine', '200g beurre', '100g sucre', '2 œufs', '25cl lait', '1 sachet levure', '200g sucre perlé'],
                 instructions: 'Mélanger farine, levure, sucre, œufs et lait. Ajouter beurre et sucre perlé. Laisser reposer 30min. Cuire au gaufrier.'
             },
             {
                 name: 'Fondue (Suisse)',
                 desc: 'Fromages fondus dégustés avec du pain.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['400g gruyère', '200g emmental', '2 gousses ail', '3dl vin blanc', '1 càc fécule', 'Pain'],
                 instructions: 'Frotter le caquelon à l\'ail. Chauffer le vin. Ajouter le fromage en remuant. Ajouter la fécule. Tremper le pain dans le fromage.'
             },
             {
                 name: 'Köttbullar (Suède)',
                 desc: 'Boulettes de viande à la crème et airelles.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['500g bœuf haché', '1 oignon', '100g chapelure', '1 œuf', '20cl crème', 'Confiture d\'airelles'],
                 instructions: 'Mélanger la viande avec l\'oignon, la chapelure et l\'œuf. Former des boulettes. Les frire. Préparer une sauce à la crème. Servir avec purée et confiture d\'airelles.'
             },
             {
                 name: 'Pierogi (Pologne)',
                 desc: 'Raviolis polonais farcis pommes de terre-fromage.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['500g farine', '250ml eau', '2 œufs', '500g pommes de terre', '200g fromage blanc', '1 oignon'],
                 instructions: 'Préparer la pâte. Écraser les pommes de terre avec le fromage. Étaler la pâte, découper des cercles, farcir et plier. Cuire dans l\'eau bouillante 5min. Servir avec crème aigre.'
             },
             {
                 name: 'Goulasch (Hongrie)',
                 desc: 'Ragoût de bœuf au paprika.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['800g bœuf', '2 oignons', '3 càs paprika', '2 poivrons', '3 pommes de terre', 'Ail'],
                 instructions: 'Couper la viande en cubes. La faire revenir avec les oignons. Ajouter le paprika. Couvrir d\'eau et mijoter 1h30. Ajouter les légumes. Cuire 30min.'
             },
             {
                 name: 'Sachertorte (Autriche)',
                 desc: 'Gâteau au chocolat à la confiture d\'abricots.',
-                cat: 'international',
+                cat: 'dessert',
                 ingredients: ['150g chocolat', '150g beurre', '100g sucre', '6 œufs', '100g farine', 'Confiture d\'abricots'],
                 instructions: 'Faire fondre le chocolat avec le beurre. Battre les jaunes avec le sucre. Ajouter chocolat et farine. Incorporer les blancs. Cuire 40min à 180°C. Garnir de confiture. Napper de glaçage chocolat.'
             },
             {
                 name: 'Ćevapi (Serbie)',
                 desc: 'Petites saucisses de viande hachée grillées.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['500g bœuf haché', '200g agneau haché', '1 oignon', 'Ail', 'Sel, poivre, paprika', 'Pain somun'],
                 instructions: 'Mélanger les viandes avec l\'oignon et les épices. Former des petits cylindres. Griller 8min. Servir dans du pain avec des oignons.'
             },
             {
                 name: 'Sarmale (Roumanie)',
                 desc: 'Rouleaux de chou farcis à la viande et au riz.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['1 chou fermenté', '500g viande hachée', '200g riz', '1 oignon', 'Tomate concentrée', 'Crème aigre'],
                 instructions: 'Détacher les feuilles de chou. Mélanger la viande avec le riz. Farcer les feuilles. Cuire 2h dans la sauce tomate. Servir avec crème aigre.'
             },
             {
                 name: 'Kibbeh (Liban)',
                 desc: 'Boulettes de boulgour et viande frites.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['300g boulgour', '500g bœuf haché', '1 oignon', 'Pignons', 'Sel, cannelle', 'Huile'],
                 instructions: 'Laver le boulgour. Mélanger avec la moitié de la viande. Assaisonner l\'autre moitié. Former des boulettes farcies. Frire 5min.'
             },
             {
                 name: 'Mansaf (Jordanie)',
                 desc: 'Agneau au yaourt servi sur du riz.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['800g agneau', '500g yaourt', '300g riz', 'Pain shrak', 'Amandes'],
                 instructions: 'Cuire l\'agneau 1h. Ajouter le yaourt et mijoter. Disposer le pain, le riz, la viande. Verser la sauce. Décorer d\'amandes.'
             },
             {
                 name: 'Kabsa (Arabie Saoudite)',
                 desc: 'Riz épicé au poulet.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['1 poulet', '300g riz basmati', '1 oignon', '3 tomates', 'Cardamome, cannelle'],
                 instructions: 'Faire revenir l\'oignon et les épices. Ajouter le poulet. Ajouter les tomates et l\'eau. Cuire le poulet. Cuire le riz dans le bouillon. Servir ensemble.'
             },
             {
                 name: 'Chelo Kabab (Iran)',
                 desc: 'Riz au safran avec brochettes de viande.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['300g riz basmati', '500g bœuf haché', '1 oignon', 'Safran', 'Beurre', 'Sumac'],
                 instructions: 'Cuire le riz au safran. Mélanger la viande avec l\'oignon. Former des brochettes et griller. Servir avec le riz et le sumac.'
             },
             {
                 name: 'Biryani (Pakistan/Inde)',
                 desc: 'Riz parfumé aux épices avec viande marinée.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['300g riz basmati', '500g poulet', '200g yaourt', 'Épices', 'Oignons frits'],
                 instructions: 'Mariner le poulet. Cuire le riz à moitié. Alterner riz et poulet dans une marmite. Cuire à feu doux 30min. Servir avec oignons frits.'
             },
             {
                 name: 'Adobo (Philippines)',
                 desc: 'Poulet mijoté sauce soja-vinaigre à l\'ail.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['600g poulet', '100ml sauce soja', '100ml vinaigre', '6 gousses ail', 'Laurier'],
                 instructions: 'Mariner le poulet 1h. Le faire revenir. Ajouter la marinade et mijoter 30min. Servir avec du riz.'
             },
             {
                 name: 'Nasi Goreng (Indonésie)',
                 desc: 'Riz frit indonésien aux épices et œuf.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['300g riz cuit', '2 œufs', '100g crevettes', '1 oignon', 'Ail', 'Sambal', 'Sauce soja sucrée'],
                 instructions: 'Faire revenir l\'ail et l\'oignon. Ajouter les crevettes et le sambal. Ajouter le riz. Sauter 5min. Servir avec un œuf au plat.'
             },
             {
                 name: 'Nasi Lemak (Malaisie)',
                 desc: 'Riz au lait de coco avec anchois et sambal.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['300g riz', '200ml lait de coco', '100g anchois', '2 œufs', 'Concombre', 'Sambal'],
                 instructions: 'Cuire le riz dans le lait de coco. Frire les anchois. Servir le riz avec les anchois, l\'œuf dur et le sambal.'
             },
             {
                 name: 'Pho (Vietnam)',
                 desc: 'Soupe de nouilles au bœuf et herbes fraîches.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['200g nouilles de riz', '300g bœuf', '1L bouillon', 'Gingembre', 'Anis étoilé', 'Herbes'],
                 instructions: 'Préparer le bouillon avec gingembre et anis. Cuire les nouilles. Trancher le bœuf fin. Verser le bouillon bouillant sur le bœuf et les nouilles. Garnir d\'herbes.'
             },
             {
                 name: 'Kimchi Jjigae (Corée)',
                 desc: 'Ragoût de kimchi épicé au porc et tofu.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['300g kimchi', '200g porc', '200g tofu', 'Gochugaru', 'Ail'],
                 instructions: 'Faire revenir le porc avec le kimchi. Ajouter de l\'eau et mijoter 20min. Ajouter le tofu. Servir avec du riz.'
             },
             {
                 name: 'Bingsu (Corée)',
                 desc: 'Glace pilée aux fruits et lait concentré.',
-                cat: 'international',
+                cat: 'dessert',
                 ingredients: ['Glace pilée', 'Lait concentré', 'Pâte de haricot rouge', 'Fruits', 'Mochi'],
                 instructions: 'Remplir un bol de glace pilée. Arroser de lait concentré. Ajouter les garnitures. Servir immédiatement.'
             },
             {
                 name: 'Ema Datshi (Bhoutan)',
                 desc: 'Ragoût de piments et fromage.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['200g piments verts', '200g fromage', '1 oignon', '2 tomates', 'Beurre'],
                 instructions: 'Faire revenir l\'oignon. Ajouter les piments et tomates. Mijoter 10min. Ajouter le fromage. Servir avec du riz rouge.'
             },
             {
                 name: 'Plov (Ouzbékistan)',
                 desc: 'Riz aux carottes et à l\'agneau.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['300g riz', '400g agneau', '3 carottes', '2 oignons', 'Ail', 'Cumin'],
                 instructions: 'Saisir la viande dans l\'huile. Ajouter oignons et carottes. Ajouter l\'eau et le cumin. Verser le riz sans mélanger. Cuire 20min à couvert.'
             },
             {
                 name: 'Injera (Éthiopie)',
                 desc: 'Galette fermentée au teff avec ragoûts épicés.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['300g farine de teff', 'Eau', 'Berbéré', 'Viande ou légumes'],
                 instructions: 'Mélanger la farine avec l\'eau. Laisser fermenter 3 jours. Cuire en crêpe épaisse. Préparer un ragoût épicé. Servir l\'injera avec le ragoût.'
             },
             {
                 name: 'Jollof Rice (Nigeria)',
                 desc: 'Riz rouge à la sauce tomate épicée.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['300g riz', '400g tomates', '1 oignon', '2 poivrons', 'Thym', 'Piment'],
                 instructions: 'Faire revenir l\'oignon et les poivrons. Ajouter les tomates et le riz. Cuire 20min. Servir avec du poulet grillé.'
             },
             {
                 name: 'Thieboudienne (Sénégal)',
                 desc: 'Riz au poisson et légumes.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['300g riz', '400g poisson', '3 carottes', 'Chou', 'Tomate concentrée', 'Ail'],
                 instructions: 'Cuire le poisson dans la sauce tomate. Ajouter les légumes et le riz. Cuire 20min. Servir le riz avec le poisson.'
             },
             {
                 name: 'Koshari (Égypte)',
                 desc: 'Riz, lentilles, pâtes sauce tomate et oignons frits.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['200g riz', '200g lentilles', '200g pâtes', '400g tomates', '1 oignon', 'Cumin'],
                 instructions: 'Cuire riz, lentilles et pâtes séparément. Préparer la sauce tomate. Frire l\'oignon. Mélanger et garnir.'
             },
             {
                 name: 'Basbousa (Égypte)',
                 desc: 'Gâteau de semoule au sirop et noix de coco.',
-                cat: 'international',
+                cat: 'dessert',
                 ingredients: ['300g semoule', '200g sucre', '100g noix de coco', '150g beurre', 'Yaourt'],
                 instructions: 'Mélanger semoule, sucre, noix de coco, beurre et yaourt. Cuire 30min à 180°C. Verser le sirop chaud à la sortie.'
             },
             {
                 name: 'Bobotie (Afrique du Sud)',
                 desc: 'Gratin de viande hachée épicée aux œufs.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['500g bœuf haché', '1 oignon', 'Pain', 'Lait', '2 œufs', 'Curry'],
                 instructions: 'Faire revenir la viande avec curry. Ajouter le pain trempé. Verser dans un plat. Battre les œufs avec le lait et verser dessus. Cuire 30min à 180°C.'
             },
             {
                 name: 'Pavlova (Australie/NZ)',
                 desc: 'Meringue géante garnie de crème et fruits.',
-                cat: 'international',
+                cat: 'dessert',
                 ingredients: ['4 blancs', '200g sucre', '300ml crème', 'Fruits frais'],
                 instructions: 'Monter les blancs avec le sucre. Cuire 1h à 120°C. Garnir de crème et fruits.'
             },
             {
                 name: 'Beshbarmak (Kazakhstan)',
                 desc: 'Viande bouillie sur des nouilles.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['600g bœuf', '500g pâte', '1 oignon'],
                 instructions: 'Cuire la viande 2h. Cuire les nouilles dans le bouillon. Disposer nouilles, viande et oignon. Verser du bouillon.'
             },
             {
                 name: 'Khachapuri (Géorgie)',
                 desc: 'Pain au fromage en bateau avec œuf.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['500g farine', '200ml lait', '300g fromage', '1 œuf', 'Beurre'],
                 instructions: 'Préparer la pâte. Étaler en bateau. Ajouter le fromage. Cuire 15min à 220°C. Ajouter l\'œuf et cuire 3min.'
             },
             {
                 name: 'Dolma (Arménie)',
                 desc: 'Feuilles de vigne farcies viande-riz.',
-                cat: 'international',
+                cat: 'plat',
                 ingredients: ['300g feuilles de vigne', '400g viande hachée', '200g riz', '1 oignon'],
                 instructions: 'Blanchir les feuilles. Mélanger viande, riz et oignon. Farcer et rouler. Cuire 45min. Servir avec yaourt.'
             },
             {
                 name: 'Halo-Halo (Philippines)',
                 desc: 'Dessert glacé aux fruits et haricots sucrés.',
-                cat: 'international',
+                cat: 'dessert',
                 ingredients: ['Glace pilée', 'Lait concentré', 'Haricots sucrés', 'Mangue', 'Leche flan'],
                 instructions: 'Remplir un verre de glace. Ajouter tous les ingrédients. Arroser de lait concentré. Mélanger avant de déguster.'
             },
             {
                 name: 'Cendol (Malaisie)',
                 desc: 'Dessert glacé au lait de coco et gelée verte.',
-                cat: 'international',
+                cat: 'dessert',
                 ingredients: ['Glace pilée', 'Lait de coco', 'Gelée cendol', 'Sucre de palme'],
                 instructions: 'Remplir un bol de glace. Ajouter la gelée et le sucre. Verser le lait de coco.'
+            },
+            // === Du CSV: Plats Tunisiens ===
+            {
+                name: 'Batbout aux crevettes',
+                desc: 'Batbout aux crevettes',
+                cat: 'plat',
+                ingredients: ['Crevettes cuites', 'Cache qui rit', 'Yaourt Grec ou fromage blanc', 'Ciboulette'],
+                instructions: 'Voir la recette originale.',
+            },
+            {
+                name: 'Bouchées tomates vache qui rit avec dip de poivrons rouge',
+                desc: 'Bouchées tomates vache qui rit avec dip de poivrons rouge',
+                cat: 'plat',
+                ingredients: ['Pain', 'Vache qui rit', 'Harissa', 'Tomates cerises rôties au four', 'Dip de poivrons rouge :', 'Poivron rouge', 'Huile d\'olives', 'Noix'],
+                instructions: 'Voir la recette originale.',
+            },
+            {
+                name: 'Boulettes de lentil',
+                desc: 'Boulettes de lentil',
+                cat: 'plat',
+                ingredients: [],
+                instructions: 'Voir la recette originale.',
+            },
+            {
+                name: 'Boulettes poisson dans sauce tomate',
+                desc: 'Boulettes poisson dans sauce tomate',
+                cat: 'plat',
+                ingredients: [],
+                instructions: 'Voir la recette originale.',
+            },
+            {
+                name: 'Briouate viande',
+                desc: 'Briouate viande',
+                cat: 'plat',
+                ingredients: ['Oignon', 'Persil', 'Viande hachée', 'Olives vertes', 'Herbes : persil et coriandre', 'Vache qui rit', 'Brick'],
+                instructions: 'Voir la recette originale.',
+            },
+            {
+                name: 'Brownie épinards fêta',
+                desc: 'Brownie épinards fêta',
+                cat: 'plat',
+                ingredients: ['500g épinards', 'Oignon', 'Huile d\'olive', '150g Fêta', '150g farine', '150ml lait', '3 œufs', '1cas levure', 'Sesame'],
+                instructions: 'Huile + oignon + épinards à la poêle',
+            },
+            {
+                name: 'Chou fleur avec hummus au poivron rouge',
+                desc: 'Loubna',
+                cat: 'plat',
+                ingredients: ['Rôtir :Chou fleur , poivron rouge et ail au four', 'Sauce : paprika, cumin, sel, poivre, huile, ail écrasé', 'Hummus:', 'Pois chiche en boîte bouillir 10 minutes', '1 citron pressé', 'Ail et poivron rôti', '3 cas Tahini', 'Sel', 'Glaçon'],
+                instructions: 'Voir la recette originale.',
+            },
+            {
+                name: 'Choux farcis',
+                desc: 'Loubna',
+                cat: 'plat',
+                ingredients: [],
+                instructions: 'Voir la recette originale.',
+            },
+            {
+                name: 'Foie d\'agneau et kafteji',
+                desc: 'Foie d\'agneau et kafteji',
+                cat: 'plat',
+                ingredients: [],
+                instructions: 'Voir la recette originale.',
+            },
+            {
+                name: 'Joue de bœuf fondante',
+                desc: 'Joue de bœuf fondante',
+                cat: 'plat',
+                ingredients: [],
+                instructions: 'Voir la recette originale.',
+            },
+            {
+                name: 'La7met thon',
+                desc: 'La7met thon',
+                cat: 'plat',
+                ingredients: [],
+                instructions: 'Voir la recette originale.',
+            },
+            {
+                name: 'Minis croissants au thon',
+                desc: 'Minis croissants au thon',
+                cat: 'plat',
+                ingredients: [],
+                instructions: 'Voir la recette originale.',
+            },
+            {
+                name: 'Nouggets poisson',
+                desc: 'Nouggets poisson',
+                cat: 'plat',
+                ingredients: [],
+                instructions: 'Voir la recette originale.',
+            },
+            {
+                name: 'Nwasser with Chicken',
+                desc: 'Nwasser with Chicken',
+                cat: 'plat',
+                ingredients: [],
+                instructions: 'Voir la recette originale.',
+            },
+            {
+                name: 'Rouz jerbi poulet bourgoul',
+                desc: 'Un plat complet, équilibré et sans gluten : rouz jerbi (ou riz djerbien) version poulet. C\'est du riz épicé cuit à la va',
+                cat: 'plat',
+                ingredients: ['250 g bourgoul', '500 g blanc de poulet (coupé en dés)', '500 g d\'épinards (voir notes)', '1 bol de pois chiches secs trempés dans l\'eau depuis la veille et égouttés. Mon bol mesure 300 ml | 30 cl (voir notes)', '1 bol de petits pois (frais ou surgelés, mon bol mesure 300 ml | 30 cl)', '1 gros oignon (émincé)', '4 gousses d\'ail (hachées)', '1 ou 2 carottes selon la taille', '1 c. à soupe concentré de tomates', '1 c. à café d\'harissa (plus ou moins selon les goûts, facultatif)', '½ bouquet de persil plat frais (ciselé)', '½ bouquet de coriandre fraîche (ciselée)', '2 c. à soupe menthe fraîche hachée (ou 2 c. à café de menthe sèche)', '2 c. à café Tabel ou Ras El Hanout (voir notes pour substitutions)', '¼ c. à café de curcuma (facultatif)', 'Sel & poivre au goût', '100 ml d\'huile d\'olive (de bonne qualité)'],
+                instructions: 'La veille, trempez les pois chiches dans l\'eau additionnée d\'1 pincée de bicarbonate de soude. Au moins 3 fois leur volume en eau. Egouttez.',
+            },
+            {
+                name: 'Slata mechouia — Our Tunisian Table',
+                desc: 'The smoky smell of vegetables slow roasting over a grill as our cousins hunch over on stools, and fan the flames patient',
+                cat: 'plat',
+                ingredients: [],
+                instructions: 'Voir la recette originale.',
+            },
+            {
+                name: 'Soupe poisson citron',
+                desc: 'Soupe poisson citron',
+                cat: 'plat',
+                ingredients: [],
+                instructions: 'Voir la recette originale.',
+            },
+            {
+                name: 'Tagine Malsouka',
+                desc: 'Proud to share my Tunisian culinary triumph with my mentors, I proclaimed one day that I had made tajine but I had not u',
+                cat: 'plat',
+                ingredients: [],
+                instructions: 'Voir la recette originale.',
+            },
+            {
+                name: 'Tunisian Couscous with Meat and Vegetables',
+                desc: 'Tunisian couscous is a classic traditional dish that is comforting and flavorful. The couscous is steamed and served wit',
+                cat: 'plat',
+                ingredients: ['500 grams of Uncooked Gluten-Free Couscous', '75 ml of Virgin Olive Oil', '2 Large Diced Red Onions', '2 Cloves of Diced Garlic', '400 grams of Beef Fondue', '½ Tablespoon of Paprika', '½ Tablespoon of Ground Coriander', '½ teaspoon of Ground Turmeric', '1 teaspoon of Salt', '½ teaspoon of Black Pepper', '1 teaspoon of Ground Ginger', '2 Tablespoons of Tomato Paste', '2 Medium Potatoes Peeled and Cut Lengthwise in Half', '2 Carrots Peeled and Cut Lengthwise in Half', '3 Zucchini Sliced Lengthwise into Quarters', '4 Quarters of a Small Pumpkin', '½ cup of Cooked and Drained Chickpeas'],
+                instructions: 'In a large cooking pot, over low-medium heat, add the virgin olive oil. Allow the olive oil to get hot, about one minute. Then add the diced red onions and garlic.',
+            },
+            // === Du CSV: International ===
+            {
+                name: 'Bibimbap',
+                desc: 'Bibimbap',
+                cat: 'plat',
+                ingredients: ['4 cups cooked white rice (, preferably short grain (Note 1))', '4 eggs', '2 tsp sesame seeds', '250 g/8oz beef tenderloin or thick steak (, very finely sliced (subs, Note 2))', '1/4 green apple (, grated using box grater (Note 3))', '3 garlic cloves (, minced)', '1 tbsp soy sauce (, light or all purpose (Note 4))', '1 tbsp honey ((or brown sugar))', '2 tsp sesame oil (, toasted (Note 9))', '2 carrots (, large, cut into 5 x 0.5cm/2 x 1/5" batons)', '2 zucchini (, large, cut into 5 x 0.5cm/2 x 1/5" batons)', '1 bunch of spinach (, cut into 5cm/2" lengths)', '8 dried shiitake mushrooms (, large (Note 5))', '4 cups bean sprouts', '2 tsp garlic (, minced (3 cloves))', '8 tsp vegetable oil (, separated)', '1/2 tsp salt', '5 tsp soy sauce (, light or all purpose (Note 4))', '1/4 tsp fish sauce ((sub soy))', '1/4 tsp white sugar', 'Sesame oil (, toasted (Note 9))', '4 tbsp gochujang paste ((Note 6))', '2 tbsp mirin ((Note 7))', '2 tbsp rice vinegar ((Note 8))', '5 tsp soy sauce ((Note 4))', '3 tsp white sugar', '1 garlic clove (, finely grated)', '5 tsp sesame oil (, toasted (Note 9))'],
+                instructions: 'Mix ingredients until sugar is dissolved.',
+            },
+            {
+                name: 'Burger maison',
+                desc: 'Burger maison',
+                cat: 'plat',
+                ingredients: [],
+                instructions: 'Voir la recette originale.',
+            },
+            {
+                name: 'Cari thaï au saumon et aux haricots verts avec riz au jasmin - CC FR',
+                desc: 'Cari thaï au saumon et aux haricots verts avec riz au jasmin - CC FR',
+                cat: 'plat',
+                ingredients: [],
+                instructions: 'Voir la recette originale.',
+            },
+            {
+                name: 'Chicken kebab',
+                desc: 'Chicken kebab',
+                cat: 'plat',
+                ingredients: ['Mince chicken', 'Coriandre une bonne quantité', 'Persil un peu', 'Oignons / ail', 'Moutarde', 'Yarout optionnel', 'Épices', 'Tout mixer', 'Huile'],
+                instructions: 'Étaler puis couper',
+            },
+            {
+                name: 'Chilli con carne - Recipes - Hairy Bikers',
+                desc: 'Here\'s a spicy classic you can still eat while on a diet. Serve with a salad and/or a very small portion of rice. Don\'t',
+                cat: 'plat',
+                ingredients: ['500g lean minced beef (10% or less fat)', '2 medium onions, chopped', '3 garlic cloves, peeled and ﬁnely chopped', '1–2 tsp hot chilli powder', '2 tsp ground cumin', '2 tsp ground coriander', '500g can of chopped tomatoes', '400g can of red kidney beans, drained and rinsed', '3 tbsp tomato purée', '1 tsp caster sugar', '1 tsp dried oregano', '1 bay leaf', 'ﬂaked sea salt', 'freshly ground black pepper'],
+                instructions: 'Place a large non-stick saucepan over a medium heat and add the beef and onions. Cook together for 5 minutes, stirring the beef and squishing it against the sides of the pan to break up the lumps.',
+            },
+            {
+                name: 'Chocolate ice cream healthy',
+                desc: 'Chocolate ice cream healthy',
+                cat: 'dessert',
+                ingredients: [],
+                instructions: 'Voir la recette originale.',
+            },
+            {
+                name: 'Classic gimbap',
+                desc: 'Hi everybody! Spring has come! It\'s time for us to make something delicious, pack a lunch box, and go on a picnic. I can',
+                cat: 'entree',
+                ingredients: ['1½ teaspoon kosher salt', '2½ tablespoons toasted sesame oil', 'vegetable oil', '1 large carrot, cut into matchsticks (about 1½ cup)', '5 strips of yellow pickled radish (use pre-cut danmuji or cut into 8 inch long strips)', '8  to 10 ounces spinach (1 small bunch), blanched, rinsed in cold water, and strained', '3 eggs', '3 garlic cloves', '2 teaspoons soy sauce', '1 tablespoon plus 1 teaspoon brown (or white) sugar'],
+                instructions: 'Place freshly made rice in a large, shallow bowl. Gently mix in ½ teaspoon kosher salt and 2 teaspoons toasted sesame oil over top with a rice scoop or a wooden spoon. Let it cool down enough so it\'s no longer steaming. Cover and set aside.',
+            },
+            {
+                name: 'Courgettes farcies au poulet',
+                desc: 'Voici la recette des courgettes farcies au poulet, plat assez copieux, simple à préparer et surtout délicieux. Repas idé',
+                cat: 'dessert',
+                ingredients: ['4 courgettes de taille moyenne', '1 cuillère à soupe d\'huile d\'olive', '500 g de blanc de poulet haché', '1 oignon haché', '2 gousses d\'ail', '60 g d\'emmental allégé', '3 cuillères à soupe de persil haché', '1 cuillère à café de paprika', 'Du sel et du poivre'],
+                instructions: 'Voir la recette originale.',
+            },
+            {
+                name: 'Curry d\'aubergines',
+                desc: 'Curry d\'aubergines',
+                cat: 'entree',
+                ingredients: [],
+                instructions: 'Voir la recette originale.',
+            },
+            {
+                name: 'Fajitas au poulet',
+                desc: 'Sheet-Pan Chicken Fajitas',
+                cat: 'plat',
+                ingredients: ['1 large red onion, sliced into thin wedges', '2 bell peppers, various colours, seeded and cut into strips', '2 tbsp (30 ml) vegetable oil', '1 1/2 lb (675 g) boneless, skinless chicken thighs and breasts, cut into strips (see note)', '1 tbsp chili powder', '8 medium soft flour tortillas', '1 lime, sliced into wedges', '1/4 cup (10 g) fresh cilantro leaves', '2 cups (200 g) mild orange cheddar, grated', 'Homemade or store-bought salsa, to taste', 'Homemade or store-bought guacamole, to taste', 'Sour cream, to taste'],
+                instructions: 'With the rack in the middle position, preheat the oven to 425°F (220°C).',
+            },
+            {
+                name: 'Foie de volaille riz persil',
+                desc: 'Foie de volaille riz persil',
+                cat: 'plat',
+                ingredients: [],
+                instructions: 'Voir la recette originale.',
+            },
+            {
+                name: 'Khoresh fesenjan – ragoût de poulet iranien aux noix et à la grenade',
+                desc: 'Khoresh fesenjan – ragoût de poulet iranien aux noix et à la grenade',
+                cat: 'plat',
+                ingredients: ['Poulet: 1kg', 'Oignons: 2', 'Gousses d\'ail: 3', 'Noix: 200g', 'Muscade: 2 pincées', 'Cannelle: 2 pincées', 'Safran: 1 pincée', 'Citron vert: 1', 'Sucre: 2 cuillères à soupe', 'Mélasse de grenade: 150ml', 'Sel & Poivre: à votre goût', 'Quelques arilles de grenade pour la déco'],
+                instructions: 'Faire revenir l\'oignon dans de l\'huile.',
+            },
+            {
+                name: 'Lebanese Spinach Pies',
+                desc: 'This authentic Lebanese Spinach Pies recipe (called fatayer) is made with a simple homemade dough recipe and the best zi',
+                cat: 'entree',
+                ingredients: ['3 cups all-purpose flour', '1 ¼ cups warm water', '2 teaspoons granulated sugar', '2 ¼ teaspoons instant yeast (1 packet)', '2 teaspoons salt', '¼ cup olive oil', '16 ounces frozen spinach (thawed/drained)', '¼ cup parsley (chopped )', '1 medium onion (diced)', '2 tablespoons olive oil', '2 tablespoons lemon juice', '1 tablespoon sumac', '1 teaspoon salt'],
+                instructions: 'Combine the warm water, sugar and yeast in a bowl. Add the flour and salt and mix together until well combined.',
+            },
+            {
+                name: 'Meat Fatayer (Fatayer Lahme)',
+                desc: 'Fatayer are one of the most beloved staples of Middle Eastern cuisine, particularly in the Levant. These triangular-shap',
+                cat: 'plat',
+                ingredients: ['3 cups bread flour', '1½ tsp. active dry yeast', '1 tb. white granulated sugar', '1 tsp. salt', '⅓ cup avocado oil ((or any neutral oil))', '1 cup water ((or milk))', '1 lb. ground beef', '1 large onion', '3 tb. avocado oil', '2 tsp. seven spices', '1 tsp. salt', '½ tsp. black pepper', '¼ pine nuts'],
+                instructions: 'In a bowl, mix ½ cup warm water or milk, 1 tablespoon sugar, and 1 ½ teaspoons yeast. Let it sit for 5 minutes until the yeast foams and doubles in size to activate the yeast.',
+            },
+            {
+                name: 'Moussaka (Greek Eggplant Lasagna)',
+                desc: 'Recipe video above. A traditional recipe for an iconic Greek dish from a wonderful cookbook called The Food And Cooking',
+                cat: 'entree',
+                ingredients: ['1 kg / 2 lb eggplant (aubergines) (, 0.75cm / 0.3" thick slices)', '1 tsp salt', '2 - 3 tbsp olive oil', '1 tbsp olive oil', '1 onion (, diced (brown, white, yellow))', '3 garlic cloves (, minced)', '4 lb / 700 g ground beef or lamb (mince)', '14 oz /400g crushed tomatoes', '3 tbsp tomato paste', '2 bay leaves', '5 tsp sugar (any)', '2 tsp dried oregano', '1/2 tsp cinnamon ((or 1 stick, use whole))', '3/4 tsp salt', '4 tbsp (60g) butter', '5 tbsp plain flour', '2 1/2 cups milk ((any fat %))', '1/4 tsp nutmeg, freshly grated (optional)', '1/2 cup parmesan cheese, grated ((or Kefalotiri Cheese) (Note 3))', '1 egg', '1 egg yolk', '1 1/4 tsp Vegeta, vegetable or chicken stock powder ((or salt) (Note 4))', '1/4 tsp pepper', '1/3 cup panko breadcrumbs ((Note 5))'],
+                instructions: 'Place eggplant slightly overlapping in a large colander. Sprinkle with some salt. Repeat with remaining eggplant.',
+            },
+            {
+                name: 'Nouilles sautées au poulet et aux légumes',
+                desc: 'Évadez-vous en Asie avec ces nouilles sautées au poulet et aux légumes. Un délicieux wok équilibré et complet qui a l\'av',
+                cat: 'entree',
+                ingredients: ['**MARINADE', '400g de poulet', '3 gousses d\'ail pressées', '1 cuill. à soupe de pâte de gingembre', '3 cuill. à soupe de sauce soja', '1 cuill. à café de miel', '**WOK DE NOUILLES', '250g de nouilles asiatiques aux œufs', '1 oignon', '3 gousses d\'ail', '1 petite tête de brocoli', '2 belles carottes', '200g de champignons de Paris', '4 à 5 cuillères à soupe de sauce soja salée', '2 cuill. à soupe d\'huile de sésame grillé', '1 cuill. à soupe de sauce piment Sriracha (optionnel)', 'Huile de tournesol'],
+                instructions: 'Préparer la marinade : couper les escalopes de poulet en cubes. Mélanger les gousses d\'ail pressées, la pâte de gingembre, la sauce soja et le miel et badigeonner les morceaux de poulet.',
+            },
+            {
+                name: 'Poisson au four accompagné de pommes de terre, tomate, oignon - Recette simple et complète',
+                desc: 'Poisson au four accompagné de pommes de terre, tomate, oignon - Recette simple et complète',
+                cat: 'plat',
+                ingredients: [],
+                instructions: 'Voir la recette originale.',
+            },
+            {
+                name: 'Poke Bowl aux Crevettes Marinées – Recette saine, rapide et adaptée aux enfants',
+                desc: 'Ce délicieux poke bowl aux crevettes marinées au miel et à l\'ail, est un repas bien sain et délicieux, servi avec du riz',
+                cat: 'plat',
+                ingredients: ['350 gr de crevettes (sautées)', '380 gr de riz (cuit dans une eau salée)', '450 ml de bouillon de poisson', '70 gr de cassonade', '80 gr de miel', '60 ml de sauce soja (légère)', '2 gousses d\'ail (écrasées)', '1 c. à soupe de fécule de maïs ( diluée dans un peu d\'eau)', '2 carottes (râpées en longueur)', '1/2 concombre ( coupé en rondelles)', '3 oignons (de printemps en rondelles)', '1 c. à soupe de vinaigre balsamique', '1/2 jus de citron vert', '1/2 zeste de citron vert', '3 radis (coupés en rondelles)', 'des fèves vertes (cuites à la vapeur)', 'Sel et poivre au goût', 'grains de sésame', 'grains de nigelle'],
+                instructions: 'Faites cuire le riz bien rincé dans une eau salée, gouttez et laissez refroidir.',
+            },
+            {
+                name: 'Poulet chawarma',
+                desc: 'Poulet chawarma',
+                cat: 'plat',
+                ingredients: [],
+                instructions: 'Voir la recette originale.',
+            },
+            {
+                name: 'Pâte galette/tarte',
+                desc: 'Loulou kitchen',
+                cat: 'entree',
+                ingredients: ['200g farine', '20g eau', '3 cas fromage blanc', 'Huile d\'olive', 'Pesto sauce à étaler sur la pâte', 'Aubergines grillées', 'Tomates cerises', 'Tomates séchées', 'Fêta et bresola à la fin de cuisson'],
+                instructions: 'Voir la recette originale.',
+            },
+            {
+                name: 'Pâtes au pesto de persil, brocoli et poulet',
+                desc: 'Pâtes au pesto de persil, brocoli et poulet',
+                cat: 'plat',
+                ingredients: [],
+                instructions: 'Voir la recette originale.',
+            },
+            {
+                name: 'Pâtes aux crevettes Loulou',
+                desc: 'Pâtes aux crevettes Loulou',
+                cat: 'entree',
+                ingredients: [],
+                instructions: 'Voir la recette originale.',
+            },
+            {
+                name: 'Quiche au saumon et aux épinards',
+                desc: 'Quiche au saumon et aux épinards',
+                cat: 'entree',
+                ingredients: ['1 rouleaux de pâte feuilletée', '200 g d\'épinards hachés surgelés', '200 g de saumon frais ou surgelé', '25 cl de crème fraîche fluide', '3 oeufs', '30 g de parmesan râpé', 'basilic', 'aneth ciselés (frais ou surgelés)', 'poivre', '50 g de gruyère (facultatif)'],
+                instructions: 'Faire décongeler les épinards au micro-onde ou à la poêle.',
+            },
+            {
+                name: 'Quiche de poulet au curry',
+                desc: 'Recette de la tarte salée de poulet au curry facile et savoureuse pour un repas simple et rapide, et une dégustation gou',
+                cat: 'plat',
+                ingredients: ['250 g de farine', '120 g de beurre en morceau', '1 jaune d\'oeuf', '½ c. à café de sucre', '½ c. à café de sel', '50 ml d\'eau froide (+ ou – selon le besoin)', '1 blanc de poulet', '2 oignos hachée', 'coriandre hachée', 'sel (poivre noir, poudre de curry)', '150 ml de crème fraiche', '3 oeufs', '2 c. à soupe d\'huile d\'olive', 'gruyère rapé (facultatif)'],
+                instructions: 'Dans le bol d\'un blender, mettre la farine et le beurre en morceaux, mixer.',
+            },
+            {
+                name: 'Recette de chausson epinard et viande hachee',
+                desc: 'Ces chaussons aux épinards et viande hachée sont parfaits pour un repas simple, rapide et équilibré. Cette recette adapt',
+                cat: 'plat',
+                ingredients: ['Pâte feuilletée ou semi feuilletée', '2 bottes d\'épinards (coupés et cuits à la vapeur ou juste à la poelle quand on n\'utilise que les feuilles)', '200 gr de viande hachée', '100 gr d\'olives vertes dénoyautées et coupées en rondelles et désalées', 'Ail (quantité selon le gout)', 'Poivre noir', 'Un peu de paprika', 'Cumin (pas beaucoup)', 'Du piquant selon le gout (moi je met lahrissa)', 'Du fromage fondu type vache qui rit', 'De la crème fraiche pour épaissir le mélange et ajouter de la douceur sinon de la sauce béchamel', 'huile d\'olive', 'Du sel'],
+                instructions: 'Dans une poêle cuire la viande hachée dans l\'huile d\'olive avec toutes les épices sauf le cumin',
+            },
+            {
+                name: 'Recette de curry de pois chiches aux epinards, plat indien',
+                desc: 'Riche en saveurs et en bienfaits, ce curry de pois chiches aux épinards est une recette végétarienne parfumée et réconfo',
+                cat: 'entree',
+                ingredients: ['450 g de pois chiches cuits (ou en conserve, égouttés et rincés)', '340 g d\'épinards frais', '250 ml de tomates finement hachées', '75 g d\'oignon haché', '120 ml d\'eau', '2 c. à soupe de beurre de cacahuètes (optionnel)', '2 piments verts ou jalapeños', '1 c. à café de cumin moulu', '1 c. à café de poudre de coriandre', '¼ c. à café de poudre de piment rouge', '½ c. à café de garam masala', '¼ c. à café de curcuma', '1 c. à café d\'ail râpé ou finement haché', '1 c. à café de gingembre râpé ou finement haché', '2 c. à soupe d\'huile', '1 c. à café de sel'],
+                instructions: 'Faites chauffer une grande sauteuse ou une poêle à feu moyen.',
+            },
+            {
+                name: 'Salade César',
+                desc: 'Salade César',
+                cat: 'entree',
+                ingredients: ['2 coeurs de laitue effeuillé', '25 g de Parmesan (copeaux)', '4 tranches de pain écroûtées', '2 cuillères à soupe d\'huile', '1 oeufs', '25 g de parmesan râpé', '2 cuillères à café de câpres', '1/2 cuillères à café de moutarde', '1 traits de tabasco', 'citron', '1 gousses d\'ail pelée', '15 cl d\'huile', 'poivre'],
+                instructions: 'Faites dorer le pain, coupé en cubes, 3 min dans un peu d\'huile.',
+            },
+            {
+                name: 'Salade betteraves, persil, quinoa',
+                desc: 'Lentilles, noix ++',
+                cat: 'entree',
+                ingredients: [],
+                instructions: 'Voir la recette originale.',
+            },
+            {
+                name: 'Salade de betteraves & de carottes (de type salade de chou) - Trois fois par jour',
+                desc: 'Salade de betteraves & de carottes (de type salade de chou) - Trois fois par jour',
+                cat: 'plat',
+                ingredients: ['Graines de citrouille, pour servir', '2 tasses de betteraves cuites, râpées (ou crues, voir note)', '2 tasses de carottes colorées, râpées', '1 tasse de coriandre fraîche, hachée', '1 oignon vert, haché', '1/3 tasse d\'huile d\'olive', 'Le jus de 1 citron', '1 c. à thé de miel', '1 c. à thé de cumin moulu', 'Sel et poivre, au goût'],
+                instructions: 'Dans un grand saladier, mélanger tous les ingrédients « pour la salade », puis réserver.',
+            },
+            {
+                name: 'Salade de pois chiches à la patate douce et au fêta',
+                desc: 'Salade de pois chiches à la patate douce et au fêta',
+                cat: 'entree',
+                ingredients: ['2 patates douces (pelées et coupées en rondelles )', '2 c. à soupe d\' d\'huile d\'olive', 'Sel et poivre', '3 tasses de bébés épinards', '1/2 tasse de pacanes', '3/4 tasse de pois chiches (en conserve, rincés et égouttés )', '1/2 tasse de fromage fêta léger (émietté )', '2 oignons verts (hachés)', '2 c. à soupe d\' huile d\'olive', '1 c. à soupe de sirop d\'érable', '1 c. à soupe de vinaigre balsamique', 'Poivre au goût'],
+                instructions: 'Préchauffer le four à 400 F.',
+            },
+            {
+                name: 'Salade d\'artichauts',
+                desc: 'Mimicooks',
+                cat: 'entree',
+                ingredients: [],
+                instructions: 'Voir la recette originale.',
+            },
+            {
+                name: 'Salade mexicaine aux haricots noirs et maïs',
+                desc: 'Salade mexicaine aux haricots noirs et maïs',
+                cat: 'entree',
+                ingredients: ['1 boîte de haricots noirs (- égouttés)', '1 boîte de maïs (- égoutté)', '1 avocat (- coupé en dés)', '1/2 oignon rouge (- coupé en dés)', '2 tomates (moyennes- coupée en dés)', '1/2 poivron rouge (- coupé en dés)', '1/2 poivron vert (- coupé en dés)', '1/3 botte de persil (- haché)', '1 boite de thon (- égoutté)', '1/4 tasse d\' huile d\'olive extra vierge', 'le zeste râpé et le jus de 1 citron', '1 gousse d\'ail (hachée)', '1 c. à café de piment en poudre', '1/2 c. à café de sel (j\'utilise du sel de l\'Himalaya)', '1/2 c. à café de cumin moulu', '1/4 c. à café de tabasco'],
+                instructions: 'Commencez par égoutter et rincer les haricots noirs et le maïs en conserve, puis placez-les dans un bol et rassemblez le reste de vos ingrédients.',
+            },
+            {
+                name: 'Salades loubna',
+                desc: 'Salades loubna',
+                cat: 'entree',
+                ingredients: [],
+                instructions: 'Voir la recette originale.',
+            },
+            {
+                name: 'Salades variées',
+                desc: 'Salata careem',
+                cat: 'entree',
+                ingredients: [],
+                instructions: 'Voir la recette originale.',
+            },
+            {
+                name: 'Sauces poulet',
+                desc: 'Sauces poulet',
+                cat: 'entree',
+                ingredients: [],
+                instructions: 'Voir la recette originale.',
+            },
+            {
+                name: 'Saumon en papillotes',
+                desc: 'Le saumon en papillotes est plat est très rapide à confectionner. Vous pouvez le déguster aussi bien accompagné de riz q',
+                cat: 'plat',
+                ingredients: ['4 pavé(s) Saumon', '2 Courgette(s)', '8 Tomate(s) cerise(s)', '2 gousse(s) Ail', '1 Échalote(s)', '1 c. à soupe Herbes de provence', 'Quelques brin(s) Ciboulette', '2 c. à soupe Huile d\'olive', 'Poivre'],
+                instructions: 'Préchauffez le four th.6 (180°C). Pelez et émincez l\'ail et l\'échalote. Lavez les tomates cerise et les courgettes.',
+            },
+            {
+                name: 'Seed crackers',
+                desc: 'Seed crackers',
+                cat: 'entree',
+                ingredients: ['100g flax seeds', '100g sunflower seeds', '100g pumpkin seeds', '30g psyllium powder', '350-500 ml water or more', '1/2 tsp salt', '150C 1 hour'],
+                instructions: 'Voir la recette originale.',
+            },
+            {
+                name: 'Spelt Flour Pizza Dough',
+                desc: '100% spelt flour pizza dough, with a time-saving single rise method. You need just over an hour and five ingredients to',
+                cat: 'entree',
+                ingredients: ['250 ml (1 cup) water (room temperature)', '2 ¼ teaspoons active dry yeast (or ½ cube fresh yeast)', '2 tablespoons olive oil', '400 grams (2 ⅔ cups) spelt flour', '1 teaspoon sea salt'],
+                instructions: 'Add the water and olive oil to a large mixing bowl and whisk in the yeast. Set aside for 10-15 minutes to allow the yeast to bloom.',
+            },
+            {
+                name: 'Tajine de kefta aux œufs (Kefta Mkawra) : recette marocaine facile',
+                desc: 'Le tajine de kefta aux oeufs est un plat marocain traditionnel, savoureux et facile à préparer. Il est composé de boulet',
+                cat: 'plat',
+                ingredients: ['200 gr de viande hachée', '1/2 oignon (haché)', '1 gousses d\'ail ( en purée)', 'quelques brins persil (hachés)', '1 c. à café de cumin en poudre', '1 c. à café de paprika', 'poivre noir', '3 oeufs', '2 à 3 tomates fraiches (ou une boite de tomate en morceaux.)', '2 à 3 c. à soupe d\'huile végétale'],
+                instructions: 'Dans un récipient, mélangez la viande hachee, l\'ail écrasé, le persil haché, le sel et le poivre noir, pour préparer boulettes de viande. Réserver.',
+            },
+            {
+                name: 'dhal de lentille corail et épinard, recette facile',
+                desc: 'Riche en saveurs et en bienfaits, ce dhal de lentilles corail aux épinards est un plat végétarien réconfortant et facile',
+                cat: 'entree',
+                ingredients: ['1 Oignon blanc', '1 c. à soupe Huile de tournesol', '120 gr Lentilles corail', '130 gr Épinards frais', '200 gr Eau', '2 c. à soupe Lait de coco', '1 c. à café Curry', '1 c. à café Curcuma', '1 Bouillon de légumes (facultatif)', '1 pincée Sel'],
+                instructions: 'Mettre 1 oignon blanc épluché et coupé en quatre dans le Thermomix et mélanger 4 sec/vitesse 5.',
+            },
+            {
+                name: 'recette des pancakes au babeurre, lben',
+                desc: 'recette des pancakes au babeurre, lben',
+                cat: 'entree',
+                ingredients: ['2 tasses de farine (une tasse de 240 ml)', '2 c. à thé de levure chimique', '1 c. à café de bicarbonate de soude', '½ c. à café de sel', '2 c. à table de sucre cristallisé', '2 tasses de babeurre', '2 gros œufs l (égèrement battus)', '1 c. à café extrait de vanille'],
+                instructions: 'mélangez ensemble les ingrédients secs dans un grand bol, je fais ça avec un fouet pour aérer le mélange',
             },
         ];
 
@@ -734,9 +1180,6 @@
             section.textContent = title;
             grid.appendChild(section);
 
-            const wrapper = document.createElement('div');
-            wrapper.className = 'grid';
-
             items.forEach(r => {
                 const item = document.createElement('article');
                 item.className = 'recipe-item';
@@ -744,6 +1187,15 @@
                 const header = document.createElement('div');
                 header.className = 'recipe-header';
                 header.innerHTML = `<h3>${r.name}</h3><p>${r.desc}</p>`;
+                const planBadge = document.createElement('button');
+                planBadge.className = 'btn-plan-badge';
+                planBadge.textContent = '📅';
+                planBadge.title = 'Planifier ce repas';
+                planBadge.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openMealPlanner(r.name);
+                });
+                header.appendChild(planBadge);
 
                 const content = document.createElement('div');
                 content.className = 'recipe-content hidden';
@@ -777,21 +1229,42 @@
 
                 item.appendChild(header);
                 item.appendChild(content);
-                wrapper.appendChild(item);
+                grid.appendChild(item);
             });
-
-            grid.appendChild(wrapper);
         }
 
         function renderRecipes() {
             grid.innerHTML = '';
-            const plats = recipes.filter(r => r.cat === 'plat');
-            const desserts = recipes.filter(r => r.cat === 'dessert');
-            const international = recipes.filter(r => r.cat === 'international');
-            if (plats.length) renderSection('🍽️ Plats Tunisiens', plats);
-            if (desserts.length) renderSection('🍰 Desserts Tunisiens', desserts);
-            if (international.length) renderSection('🌍 International', international);
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const filter = document.querySelector('.filter-btn.active').dataset.filter;
+
+            let filtered = recipes;
+            if (filter !== 'all') {
+                filtered = filtered.filter(r => r.cat === filter);
+            }
+            if (query) {
+                filtered = filtered.filter(r => r.name.toLowerCase().includes(query));
+            }
+
+            const plats = filtered.filter(r => r.cat === 'plat');
+            const entrees = filtered.filter(r => r.cat === 'entree');
+            const desserts = filtered.filter(r => r.cat === 'dessert');
+            if (plats.length) renderSection('🍽️ Plats', plats);
+            if (entrees.length) renderSection('🥗 Entrées', entrees);
+            if (desserts.length) renderSection('🍰 Desserts', desserts);
+            if (!filtered.length) {
+                grid.innerHTML = '<p class="empty-msg">Aucune recette trouvée.</p>';
+            }
         }
+
+        document.getElementById('searchInput').addEventListener('input', renderRecipes);
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                renderRecipes();
+            });
+        });
 
         addBtn.addEventListener('click', () => addForm.classList.toggle('hidden'));
 
@@ -831,6 +1304,43 @@
         });
 
         renderRecipes();
+
+        let plannerRecipeName = '';
+
+        function openMealPlanner(name) {
+            plannerRecipeName = name;
+            document.getElementById('mealModalRecipe').textContent = name;
+            document.getElementById('mealModal').classList.remove('hidden');
+        }
+
+        const dateInput = document.getElementById('mealDate');
+        dateInput.value = todayStr();
+
+        const timeSelect = document.getElementById('mealTime');
+        mealTimes.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t;
+            opt.textContent = t;
+            timeSelect.appendChild(opt);
+        });
+
+        document.getElementById('mealSaveBtn').addEventListener('click', () => {
+            const date = dateInput.value;
+            const time = timeSelect.value;
+            addToMealPlan(plannerRecipeName, date, time);
+            document.getElementById('mealModal').classList.add('hidden');
+            alert(`✓ "${plannerRecipeName}" ajouté au ${formatDate(date)} (${time})`);
+        });
+
+        document.getElementById('mealCancelBtn').addEventListener('click', () => {
+            document.getElementById('mealModal').classList.add('hidden');
+        });
+
+        document.getElementById('mealModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                document.getElementById('mealModal').classList.add('hidden');
+            }
+        });
     </script>
 </body>
 </html>
