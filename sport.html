@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sport</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <a href="index.html" class="back">← Retour</a>
+        <h1>🏋️ Sport</h1>
+        <p>Choisis ton sport et découvre des exercices sans équipement</p>
+    </header>
+
+    <main>
+        <div class="sport-select">
+            <button class="sport-btn" data-sport="football">
+                <span class="sport-icon">⚽</span>
+                <span class="sport-name">Football</span>
+            </button>
+            <button class="sport-btn" data-sport="natation">
+                <span class="sport-icon">🏊</span>
+                <span class="sport-name">Natation</span>
+            </button>
+            <button class="sport-btn" data-sport="course">
+                <span class="sport-icon">🏃</span>
+                <span class="sport-name">Course à pied</span>
+            </button>
+            <button class="sport-btn" data-sport="velo">
+                <span class="sport-icon">🚴</span>
+                <span class="sport-name">Vélo</span>
+            </button>
+        </div>
+
+        <div id="exercisesSection"></div>
+    </main>
+
+    <script>
+        const sportsData = {
+            football: {
+                name: '⚽ Football',
+                exercises: [
+                    {
+                        icon: '🦵',
+                        name: 'Gainage (Planche)',
+                        desc: 'Allongé face au sol, relève-toi sur les avant-bras et les pointes de pieds. Le corps reste parfaitement droit, des épaules aux chevilles. Contracte abdominaux et fessiers.',
+                        sets: '3 × 45 secondes'
+                    },
+                    {
+                        icon: '🦿',
+                        name: 'Squats',
+                        desc: 'Pieds écartés à la largeur des épaules, descends comme si tu t\'asseyais sur une chaise. Genoux alignés sur les pieds, dos droit. Remonte en poussant sur les talons.',
+                        sets: '3 × 15 répétitions'
+                    },
+                    {
+                        icon: '🚶',
+                        name: 'Fentes (Lunges)',
+                        desc: 'Fais un grand pas en avant avec une jambe, descends le genou arrière vers le sol sans le toucher. Reviens en position debout et alterne les jambes.',
+                        sets: '3 × 12 par jambe'
+                    },
+                    {
+                        icon: '💨',
+                        name: 'Sprints courts',
+                        desc: 'Sprint maximal sur 20-30 mètres, puis marche au retour pour récupérer. Travaille l\'explosivité et l\'accélération, essentiel en football.',
+                        sets: '6 × 30 mètres'
+                    },
+                    {
+                        icon: '🦘',
+                        name: 'Sauts en longueur',
+                        desc: 'Debout, plie les genoux et saute le plus loin possible en avant en balançant les bras. Atterris en douceur sur les deux pieds. Travaille la puissance explosive.',
+                        sets: '3 × 10 sauts'
+                    },
+                    {
+                        icon: '⚖️',
+                        name: 'Équilibre sur un pied',
+                        desc: 'Tiens-toi debout sur une jambe, genou légèrement fléchi. Maintiens la position en gardant le regard fixe devant toi. Passe à l\'autre jambe.',
+                        sets: '3 × 30 secondes par jambe'
+                    },
+                    {
+                        icon: '🏃',
+                        name: 'Montées de genoux',
+                        desc: 'Debout, monte les genoux alternativement le plus haut possible en rythme. Travaille les abdominaux et la cardio. Bras en mouvement comme en course.',
+                        sets: '3 × 30 secondes'
+                    }
+                ]
+            },
+            natation: {
+                name: '🏊 Natation',
+                exercises: [
+                    {
+                        icon: '🔄',
+                        name: 'Rotations d\'épaules',
+                        desc: 'Debout, bras tendus, fais de grands cercles vers l\'avant puis vers l\'arrière. Lentement et en amplitude maximale. Prépare les épaules pour la natation.',
+                        sets: '3 × 20 rotations chaque sens'
+                    },
+                    {
+                        icon: '🔙',
+                        name: 'Gainage dorsal (Superman)',
+                        desc: 'Allongé face au sol, relève simultanément bras et jambes du sol. Maintiens 2-3 secondes puis reprends. Renforce le dos et les épaules.',
+                        sets: '3 × 15 répétitions'
+                    },
+                    {
+                        icon: '🤸',
+                        name: 'Étirements coiffe des rotateurs',
+                        desc: 'Place un bras à l\'horizontale, utilise l\'autre main pour tirer doucement vers l\'arrière. Maintiens 20 secondes. Essentiel pour prévenir les blessures.',
+                        sets: '3 × 20 secondes par bras'
+                    },
+                    {
+                        icon: '🌬️',
+                        name: 'Respiration contrôlée',
+                        desc: 'Assis ou debout, inspire profondément par le nez (4 temps), retiens (4 temps), expire par la bouche (6 temps). Améliore la capacité pulmonaire.',
+                        sets: '3 × 10 cycles'
+                    },
+                    {
+                        icon: '💪',
+                        name: 'Planche (Gainage)',
+                        desc: 'Position de pompe sur les avant-bras. Corps droit, abdos serrés, regard vers le bas. Renforce le core, essentiel pour la stabilité dans l\'eau.',
+                        sets: '3 × 45 secondes'
+                    },
+                    {
+                        icon: '🦵',
+                        name: 'Squats pour les jambes',
+                        desc: 'Pieds à la largeur des épaules, descends les fesses vers le sol. Les jambes sont le moteur principal en natation. Travaille puissance et endurance.',
+                        sets: '3 × 20 répétitions',
+                        dumbbell: true
+                    }
+                ]
+            },
+            course: {
+                name: '🏃 Course à pied',
+                exercises: [
+                    {
+                        icon: '🦵',
+                        name: 'Squats',
+                        desc: 'Pieds écartés largeur des épaules, descends comme si tu t\'asseyais. Genoux ne dépassent pas les orteils. Renforce les quadriceps et fessiers pour la foulée.',
+                        sets: '3 × 15 répétitions',
+                        dumbbell: true
+                    },
+                    {
+                        icon: '🚶',
+                        name: 'Fentes avant et arrière',
+                        desc: 'Fais un pas en avant et descends le genou arrière. Puis recule directement en fente arrière. Travaille l\'équilibre et la stabilité des hanches.',
+                        sets: '3 × 12 par jambe'
+                    },
+                    {
+                        icon: '🏃',
+                        name: 'Montées de genoux',
+                        desc: 'En place, monte les genoux alternativement le plus haut possible en rythme rapide. Travaille la foulée et l\'activation des flexeurs de hanches.',
+                        sets: '3 × 30 secondes'
+                    },
+                    {
+                        icon: '👟',
+                        name: 'Talons-fesses',
+                        desc: 'En place ou en course légère, touche tes fesses avec les talons en arrière. Travaille les ischio-jambiers et améliore la fréquence de foulée.',
+                        sets: '3 × 30 secondes'
+                    },
+                    {
+                        icon: '🧘',
+                        name: 'Gainage',
+                        desc: 'Sur les avant-bras, corps parfaitement droit. Contracte abdominaux et fessiers. Le gainage protège le bas du dos et améliore la posture de course.',
+                        sets: '3 × 60 secondes'
+                    },
+                    {
+                        icon: '🦶',
+                        name: 'Mollets (Montées sur pointes)',
+                        desc: 'Debout sur le bord d\'une marche ou à plat, monte sur la pointe des pieds puis redescends lentement. Renforce les mollets, clés pour l\'impulsion.',
+                        sets: '3 × 20 répétitions'
+                    },
+                    {
+                        icon: '🤸',
+                        name: 'Étirements ischio-jambiers',
+                        desc: 'Assis, jambes tendues, penche le buste vers l\'avant en gardant le dos droit. Maintiens l\'étirement sans à-coups. Essentiel en post-running.',
+                        sets: '3 × 30 secondes par jambe'
+                    }
+                ]
+            },
+            velo: {
+                name: '🚴 Vélo',
+                exercises: [
+                    {
+                        icon: '🦵',
+                        name: 'Squats',
+                        desc: 'Pieds écartés largeur des épaules, descends les fesses vers le sol. Dos droit, poids sur les talons. Renforce les quadriceps, essentiels pour la pédale.',
+                        sets: '3 × 15 répétitions',
+                        dumbbell: true
+                    },
+                    {
+                        icon: '🚶',
+                        name: 'Fentes',
+                        desc: 'Grand pas en avant, genou arrière proche du sol. Travaille les fessiers et les quadriceps de manière unilatérale, comme la poussée sur chaque pédale.',
+                        sets: '3 × 12 par jambe'
+                    },
+                    {
+                        icon: '🧘',
+                        name: 'Gainage',
+                        desc: 'Planche sur les avant-bras, corps droit. Un core solide stabilise le tronc sur le vélo et évite les douleurs lombaires sur les longues distances.',
+                        sets: '3 × 45 secondes'
+                    },
+                    {
+                        icon: '🦵',
+                        name: 'Extensions de jambes',
+                        desc: 'Assis sur une chaise, tends une jambe devant toi en contractant le quadriceps. Maintiens 2 secondes puis reprends. Isolement du quadriceps.',
+                        sets: '3 × 15 par jambe',
+                        dumbbell: true
+                    },
+                    {
+                        icon: '🤸',
+                        name: 'Étirement quadriceps',
+                        desc: 'Debout, attrape ta cheville derrière toi et rapproche le talon des fessiers. Genoux alignés. Maintiens 30 secondes. Indispensable après le vélo.',
+                        sets: '3 × 30 secondes par jambe'
+                    },
+                    {
+                        icon: '🦶',
+                        name: 'Étirement mollets',
+                        desc: 'Debout face à un mur, recule une jambe et appuie le talon au sol. Sent l\'étirement dans le mollet. Les mollets travaillent énormément à vélo.',
+                        sets: '3 × 30 secondes par jambe'
+                    },
+                    {
+                        icon: '⚖️',
+                        name: 'Exercice d\'équilibre',
+                        desc: 'Debout sur une jambe, les yeux fermés si possible. Maintiens l\'équilibre le plus longtemps possible. Améliore la proprioception pour la stabilité sur le vélo.',
+                        sets: '3 × 30 secondes par jambe'
+                    }
+                ]
+            }
+        };
+
+        const buttons = document.querySelectorAll('.sport-btn');
+        const exercisesSection = document.getElementById('exercisesSection');
+
+        buttons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                buttons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                renderExercises(btn.dataset.sport);
+            });
+        });
+
+        function renderExercises(sportKey) {
+            const sport = sportsData[sportKey];
+            if (!sport) return;
+
+            let html = `
+                <h2 class="exercises-title">${sport.name} — Exercices sans équipement</h2>
+                <p class="exercises-subtitle">Environ 5 à 8 exercices pour chaque sport, réalisables chez soi</p>
+                <div class="exercises-grid">
+            `;
+
+            sport.exercises.forEach(ex => {
+                html += `
+                    <div class="exercise-card">
+                        <div class="exercise-header">
+                            <span class="exercise-icon">${ex.icon}</span>
+                            <span class="exercise-name">${ex.name}</span>
+                        </div>
+                        <p class="exercise-desc">${ex.desc}</p>
+                        <span class="exercise-sets">${ex.sets}</span>
+                        ${ex.dumbbell ? '<p class="exercise-dumbbell">💪 Peut être fait avec des haltères pour plus d\'intensité</p>' : ''}
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            exercisesSection.innerHTML = html;
+            exercisesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    </script>
+</body>
+</html>

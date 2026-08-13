@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cusine</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="cart.js"></script>
 </head>
@@ -1168,6 +1171,32 @@
             },
         ];
 
+        const PEXELS_KEY = ''; // ← mets ta clé API Pexels ici (https://www.pexels.com/api/)
+
+        const imageCache = JSON.parse(localStorage.getItem('recipeImages') || '{}');
+
+        function saveImageCache() {
+            localStorage.setItem('recipeImages', JSON.stringify(imageCache));
+        }
+
+        async function fetchRecipeImage(recipeName) {
+            if (imageCache[recipeName]) return imageCache[recipeName];
+            if (!PEXELS_KEY) return null;
+            try {
+                const res = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(recipeName)}&per_page=1`, {
+                    headers: { Authorization: PEXELS_KEY }
+                });
+                if (!res.ok) return null;
+                const data = await res.json();
+                const url = data.photos?.[0]?.src?.medium || null;
+                imageCache[recipeName] = url;
+                saveImageCache();
+                return url;
+            } catch {
+                return null;
+            }
+        }
+
         const grid = document.getElementById('recipesGrid');
         const addBtn = document.getElementById('addBtn');
         const addForm = document.getElementById('addForm');
@@ -1186,7 +1215,32 @@
 
                 const header = document.createElement('div');
                 header.className = 'recipe-header';
-                header.innerHTML = `<h3>${r.name}</h3><p>${r.desc}</p>`;
+                const imgWrap = document.createElement('div');
+                imgWrap.className = 'recipe-img-wrap';
+                const img = document.createElement('img');
+                img.className = 'recipe-img hidden';
+                img.alt = `Photo de ${r.name}`;
+                img.loading = 'lazy';
+                img.dataset.recipeName = r.name;
+                const placeholder = document.createElement('div');
+                placeholder.className = 'recipe-img-placeholder';
+                placeholder.textContent = '🍽️';
+                imgWrap.appendChild(img);
+                imgWrap.appendChild(placeholder);
+                header.appendChild(imgWrap);
+                const nameHeading = document.createElement('h3');
+                nameHeading.textContent = r.name;
+                header.appendChild(nameHeading);
+                const descP = document.createElement('p');
+                descP.textContent = r.desc;
+                header.appendChild(descP);
+                fetchRecipeImage(r.name).then(url => {
+                    if (url) {
+                        img.src = url;
+                        img.classList.remove('hidden');
+                        placeholder.classList.add('hidden');
+                    }
+                });
                 const planBadge = document.createElement('button');
                 planBadge.className = 'btn-plan-badge';
                 planBadge.textContent = '📅';
@@ -1220,7 +1274,7 @@
                     e.stopPropagation();
                     addToCart(r.name, r.ingredients);
                     cartBtn.textContent = '✓ Ajouté';
-                    cartBtn.style.background = '#27ae60';
+                    cartBtn.style.background = '#1F618D';
                     setTimeout(() => {
                         cartBtn.textContent = 'Ajouter au panier';
                         cartBtn.style.background = '';

@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vols</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -70,108 +73,13 @@
             { name: 'Ryanair', site: 'https://www.ryanair.com', color: '#073590' }
         ];
 
-        const rates = { TND: 1, EUR: 0.3, USD: 0.33, AED: 1.2 };
-        const symbols = { TND: 'TND', EUR: '€', USD: '$', AED: 'د.إ' };
-
-        function randomPrice(min, max) {
-            return Math.floor(Math.random() * (max - min + 1)) + min;
-        }
-
-        function randomTime() {
-            const h = String(Math.floor(Math.random() * 24)).padStart(2, '0');
-            const m = String(Math.floor(Math.random() * 60)).padStart(2, '0');
-            return h + ':' + m;
-        }
-
-        function addMinutes(time, mins) {
-            const [h, m] = time.split(':').map(Number);
-            const total = h * 60 + m + mins;
-            return String(Math.floor(total / 60) % 24).padStart(2, '0') + ':' + String(total % 60).padStart(2, '0');
-        }
-
-        function generateFlights(from, to, passengers, currency) {
-            return airlines.map(airline => {
-                const depTime = randomTime();
-                const duration = 60 + Math.floor(Math.random() * 240);
-                const arrTime = addMinutes(depTime, duration);
-                const priceTND = randomPrice(80, 600) * passengers;
-                const price = Math.round(priceTND * rates[currency]);
-                return { airline, depTime, duration, arrTime, price };
-            }).sort((a, b) => a.price - b.price);
-        }
-
-        const cars = [
-            { name: 'Citroën C1', seats: 4, type: 'Citadine', site: 'https://www.rentalcars.com', icon: '🚗' },
-            { name: 'Peugeot 208', seats: 5, type: 'Citadine', site: 'https://www.rentalcars.com', icon: '🚗' },
-            { name: 'Renault Clio', seats: 5, type: 'Citadine', site: 'https://www.rentalcars.com', icon: '🚗' },
-            { name: 'Volkswagen Golf', seats: 5, type: 'Berline', site: 'https://www.rentalcars.com', icon: '🚙' },
-            { name: 'Toyota Corolla', seats: 5, type: 'Berline', site: 'https://www.rentalcars.com', icon: '🚙' },
-            { name: 'Dacia Duster', seats: 5, type: 'SUV', site: 'https://www.rentalcars.com', icon: '🚙' },
-            { name: 'Peugeot 3008', seats: 5, type: 'SUV', site: 'https://www.rentalcars.com', icon: '🚙' },
-            { name: 'Renault Scénic', seats: 7, type: 'Monospace', site: 'https://www.rentalcars.com', icon: '🚐' },
-            { name: 'Volkswagen Sharan', seats: 7, type: 'Monospace', site: 'https://www.rentalcars.com', icon: '🚐' },
-            { name: 'Mercedes Vito', seats: 9, type: 'Minibus', site: 'https://www.rentalcars.com', icon: '🚐' }
+        const vehicleTypes = [
+            { name: 'Citadine', seats: 4, icon: '🚗' },
+            { name: 'Berline', seats: 5, icon: '🚙' },
+            { name: 'SUV', seats: 5, icon: '🚙' },
+            { name: 'Monospace', seats: 7, icon: '🚐' },
+            { name: 'Minibus', seats: 9, icon: '🚐' }
         ];
-
-        function generateCars(passengers, currency) {
-            return cars
-                .filter(c => c.seats >= passengers)
-                .map(c => {
-                    const priceTND = randomPrice(40, 150);
-                    const price = Math.round(priceTND * rates[currency]);
-                    return { ...c, price };
-                })
-                .sort((a, b) => a.price - b.price);
-        }
-
-        function renderCars(cars, currency, container) {
-            cars.forEach(c => {
-                const card = document.createElement('a');
-                card.href = c.site;
-                card.target = '_blank';
-                card.rel = 'noopener';
-                card.className = 'car-card';
-                card.innerHTML = `
-                    <div class="car-icon">${c.icon}</div>
-                    <div class="car-info">
-                        <div class="car-name">${c.name}</div>
-                        <div class="car-type">${c.type} · ${c.seats} places</div>
-                    </div>
-                    <div class="car-price">${c.price} ${symbols[currency]} <span class="car-perday">/jour</span></div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        function renderFlights(flights, from, to, dateLabel, currency, container) {
-            const header = document.createElement('h2');
-            header.textContent = `Vols ${from} → ${to} du ${dateLabel}`;
-            container.appendChild(header);
-
-            flights.forEach(f => {
-                const card = document.createElement('a');
-                card.href = f.airline.site;
-                card.target = '_blank';
-                card.rel = 'noopener';
-                card.className = 'flight-card';
-                card.style.borderLeftColor = f.airline.color;
-
-                card.innerHTML = `
-                    <div class="flight-header">
-                        <span class="airline-name" style="color:${f.airline.color}">${f.airline.name}</span>
-                        <span class="flight-price">${f.price} ${symbols[currency]}</span>
-                    </div>
-                    <div class="flight-times">
-                        <span class="time">${f.depTime}</span>
-                        <span class="duration">${Math.floor(f.duration / 60)}h${f.duration % 60 > 0 ? (f.duration % 60) + 'min' : ''}</span>
-                        <span class="time">${f.arrTime}</span>
-                    </div>
-                    <div class="flight-route">${from} → ${to}</div>
-                `;
-
-                container.appendChild(card);
-            });
-        }
 
         document.getElementById('travelForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -189,23 +97,60 @@
 
             const dateLabel = new Date(departDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
 
-            const allerFlights = generateFlights(from, to, passengers, currency);
-            renderFlights(allerFlights, from, to, dateLabel, currency, container);
+            // Google Flights — aller
+            const gfQuery = `Vols de ${from} à ${to} le ${dateLabel} pour ${passengers} passagers`;
+            const gfUrl = `https://www.google.com/travel/flights?q=${encodeURIComponent(gfQuery)}`;
 
+            const gfSection = document.createElement('div');
+            gfSection.style.textAlign = 'center';
+            gfSection.style.margin = '2rem 0';
+            gfSection.innerHTML = `
+                <h2>Vols ${from} → ${to}</h2>
+                <p style="color:#D6E8F5;margin:0.5rem 0 1rem">${dateLabel} · ${passengers} passager${passengers > 1 ? 's' : ''}</p>
+                <a href="${gfUrl}" target="_blank" rel="noopener" class="btn btn-checkout" style="display:inline-block;width:auto">
+                    🔍 Voir sur Google Flights
+                </a>
+            `;
+            container.appendChild(gfSection);
+
+            // Google Flights — retour
             if (returnDate) {
                 const returnLabel = new Date(returnDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-                const retourFlights = generateFlights(to, from, passengers, currency);
-                const returnHeader = document.createElement('h2');
-                returnHeader.textContent = `Vols ${to} → ${from} du ${returnLabel}`;
-                returnHeader.style.marginTop = '2rem';
-                container.appendChild(returnHeader);
-                renderFlights(retourFlights, to, from, returnLabel, currency, container);
+                const returnGfQuery = `Vols de ${to} à ${from} le ${returnLabel} pour ${passengers} passagers`;
+                const returnGfUrl = `https://www.google.com/travel/flights?q=${encodeURIComponent(returnGfQuery)}`;
+                const returnSection = document.createElement('div');
+                returnSection.style.textAlign = 'center';
+                returnSection.style.margin = '2rem 0';
+                returnSection.innerHTML = `
+                    <h2>Vols ${to} → ${from}</h2>
+                    <p style="color:#D6E8F5;margin:0.5rem 0 1rem">${returnLabel} · ${passengers} passager${passengers > 1 ? 's' : ''}</p>
+                    <a href="${returnGfUrl}" target="_blank" rel="noopener" class="btn btn-checkout" style="display:inline-block;width:auto">
+                        🔍 Voir sur Google Flights
+                    </a>
+                `;
+                container.appendChild(returnSection);
             }
 
-            const extra = document.createElement('div');
-            extra.className = 'extra-section';
+            // Compagnies aériennes
+            const airlinesSection = document.createElement('div');
+            airlinesSection.innerHTML = `
+                <h2 style="text-align:center;margin-top:2rem">✈️ Compagnies aériennes</h2>
+                <div class="extra-links" style="margin-top:1rem">
+                    ${airlines.map(a => `
+                        <a href="${a.site}" target="_blank" rel="noopener" class="extra-card">
+                            <span class="extra-icon">✈️</span>
+                            <span class="extra-name" style="color:${a.color}">${a.name}</span>
+                            <span class="extra-desc">Voir sur leur site</span>
+                        </a>
+                    `).join('')}
+                </div>
+            `;
+            container.appendChild(airlinesSection);
 
-            extra.innerHTML = `
+            // Hôtels
+            const hotelsSection = document.createElement('div');
+            hotelsSection.className = 'extra-section';
+            hotelsSection.innerHTML = `
                 <h2 style="margin-top:2rem">🏨 Hôtels & Appartements à ${to}</h2>
                 <div class="extra-links">
                     <a href="https://www.booking.com/searchresults.html?ss=${encodeURIComponent(to)}" target="_blank" rel="noopener" class="extra-card">
@@ -224,17 +169,32 @@
                         <span class="extra-desc">Hôtels partout dans le monde</span>
                     </a>
                 </div>
-
-                <h2 style="margin-top:2rem">🚗 Location de voiture à ${to}</h2>
-                <div id="carsContainer" class="cars-grid"></div>
-                <p class="cars-note">${passengers} passager${passengers > 1 ? 's' : ''} · voitures avec ${passengers} place${passengers > 1 ? 's' : ''} minimum</p>
-                <a href="https://www.rentalcars.com/Search?pickup=${encodeURIComponent(to)}" target="_blank" rel="noopener" class="btn btn-small">Voir plus sur Rentalcars →</a>
             `;
+            container.appendChild(hotelsSection);
 
-            container.appendChild(extra);
+            // Location de voiture
+            const rentalUrl = `https://www.rentalcars.com/Search?pickup=${encodeURIComponent(to)}`;
+            const filteredVehicles = vehicleTypes.filter(v => v.seats >= passengers);
 
-            const carsList = generateCars(passengers, currency);
-            renderCars(carsList, currency, document.getElementById('carsContainer'));
+            const carsSection = document.createElement('div');
+            carsSection.innerHTML = `
+                <h2 style="margin-top:2rem">🚗 Location de voiture à ${to}</h2>
+                <div class="cars-grid">
+                    ${filteredVehicles.map(v => `
+                        <a href="${rentalUrl}" target="_blank" rel="noopener" class="car-card">
+                            <div class="car-icon">${v.icon}</div>
+                            <div class="car-info">
+                                <div class="car-name">${v.name}</div>
+                                <div class="car-type">${v.seats} places</div>
+                            </div>
+                            <div class="car-price">Voir prix →</div>
+                        </a>
+                    `).join('')}
+                </div>
+                <p class="cars-note">${passengers} passager${passengers > 1 ? 's' : ''} · véhicules avec ${passengers} place${passengers > 1 ? 's' : ''} minimum</p>
+                <a href="${rentalUrl}" target="_blank" rel="noopener" class="btn btn-small">Voir plus sur Rentalcars →</a>
+            `;
+            container.appendChild(carsSection);
 
             container.scrollIntoView({ behavior: 'smooth' });
         });
